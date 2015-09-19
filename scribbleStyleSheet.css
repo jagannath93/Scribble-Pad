@@ -1,0 +1,70 @@
+body{
+			margin : 0px;
+			padding : 0px;
+			
+		}
+		
+		#canvas_1,#canvas_img {
+			border : solid red 1px;	
+			cursor : crosshair;
+			-moz-user-select: none; 
+			-khtml-user-select: none; 
+			-webkit-user-select: none; 
+			-o-user-select: none; 
+			position : absolute;
+			top : 0px;
+			left : 0px;
+			z-index : 500;
+		}
+		
+		#canvas_2 {
+			border : solid red 1px;	
+			cursor : crosshair;
+			-moz-user-select: none; 
+			-khtml-user-select: none; 
+			-webkit-user-select: none; 
+			-o-user-select: none; 
+			position : absolute;
+			top : 0px;
+			left : 0px;
+			z-index : 500;
+			opacity : 0.7;
+		}
+		
+		#recCanvas {
+			border : solid red 1px;	
+			cursor : crosshair;
+			-moz-user-select: none; 
+			-khtml-user-select: none; 
+			-webkit-user-select: none; 
+			-o-user-select: none; 
+			position : absolute;
+			top : 500px;
+			left : 0px;
+			z-index : 500;
+
+		}
+		
+		#canvas_screen {
+			position : absolute;
+			cursor : crosshair;
+			top : 0px;
+			left : 0px;
+			width : 1000px;
+			height : 500px;
+			border : solid red 1px;
+			z-index : 1000;
+		}
+		
+		#tool_box{
+			position : absolute;
+			top : 0px;
+			left : 1010px;
+		}
+		
+		#help_text{
+			text-align : center;
+			width : 300px;
+			border : solid #b8b8b8 1px;
+			padding : 5px;
+		}

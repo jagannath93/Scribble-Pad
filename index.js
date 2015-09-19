@@ -1,3 +1,4 @@
+// Dependency Modules
 var express = require("express");
 var app = express();
 var server = require('http').createServer(app);
@@ -16,7 +17,9 @@ app.use(express.static(__dirname + "/"));
 // Handle data transmission
 io.on("connection", function(socket) {
     socket.on("send data", function(data) {
+        console.log("cp-1");
         socket.broadcast.emit("data update", data);
+        console.log(data);
     });
     socket.on("send image", function(data) {
         console.log("image data received!");

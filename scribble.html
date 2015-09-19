@@ -12,6 +12,8 @@
 	<canvas id = "canvas_1" height = "500px" width = "1000px" class = "scribblePad"></canvas>
 	<canvas id = "canvas_2" height = "500px" width = "1000px" class = "scribblePad"></canvas>
 	<div id = "canvas_screen" class = "scribblePad"></div>
+	<canvas id = "recCanvas" height = "500px" width = "1000px" class = "recCanvas"></canvas>
+	
 	<br />
 	<div id = "tool_box">
 	<select id = "tool_list" onchange = "loadTool()">
@@ -53,20 +55,19 @@
         // trigger on new flat data update
         connection.on('data update', function (data) {
             console.log("flat data received");
-            console.log(data);
-            renderObject(data, c1);
+            renderObject(data);
         });
 
         // trigger on new image data update
-        /*
-        connection.on('image update', function (data) {
+        connection.on('data update', function (data) {
             console.log("Image data received");
             renderObject(data);
         });
-        */
 
         function pingData(data){
-            connection.emit("send data", data);
+            console.log("ping called - 1");
+            console.log(data);
+            connection.emit('send data', {'a':1});
         }
 
     </script>

@@ -1,0 +1,80 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <h2> Scribble Pad </h2>
+        <button onclick="sendData();">Send Data</button>
+        <br>
+        <hr>
+        <input type="file" id="img"/>
+        <button onclick="sendImage();">Send Image</button>
+        <div id="responseBlock">
+            <!-- append response here -->
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io.connect(window.location.host);
+
+            // trigger on new data update
+            socket.on('data update', function (data) {
+                console.log(data);
+                var container = document.getElementById("responseBlock");
+                var old_content = container.innerHTML;
+                var content = old_content + "<br>" + data
+                container.innerHTML = content;
+            });
+
+            socket.on('image update', function (data) {
+                console.log("image update received");
+                var container = document.getElementById("responseBlock");
+                var _ele = document.createElement("img");
+                _ele.src = data;
+                _ele.style.height = "100px";
+                container.appendChild(_ele);
+            });
+
+
+            // Convert images into base64 string
+            function encodeImage(src) {
+                var canvas = document.createElement('canvas'),
+                    ctx = canvas.getContext('2d'),
+                    img = new Image();
+                    img.setAttribute('crossOrigin', 'anonymous');
+
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0, img.width, img.height);
+                    return canvas.toDataURL();
+                }
+                img.src = src;
+            }
+
+            // Send formatted json data on change
+            function sendData() {
+                var data = {
+                    'name': 'Jagannadh',
+                    'enr.no': '11110059',
+                    'college': 'IIT Roorkee',
+                    'timestamp': new Date().getTime()
+                };
+                socket.emit('send data', data);
+                console.log("Data sent");
+            }
+
+
+            // Send image data
+            function sendImage() {
+                var file = document.getElementById("img").files[0];
+                reader = new FileReader();
+                reader.onload = function(evt){
+                    socket.emit('send image', evt.target.result);
+                    console.log("Image sent");
+                    console.log(evt.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        </script>
+    </body>
+</html>
+
