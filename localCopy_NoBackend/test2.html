@@ -1,0 +1,71 @@
+<html>
+
+<head>
+	<style>
+		body{
+			margin : 0px;
+			padding : 0px;
+			
+		}
+		
+		#my_canvas {
+			border : solid red 1px;	
+			cursor : pointer;
+			-moz-user-select: none; 
+			-khtml-user-select: none; 
+			-webkit-user-select: none; 
+			-o-user-select: none; 
+		}
+	</style>
+
+	<script type = "text/JavaScript" src = "jquery-1.9.1.min.js"></script>
+</head>
+
+<body>
+	<canvas id = "my_canvas" height = "200px" width = "500px">
+	</canvas>
+	
+	<script>
+		var canvas = document.getElementById("my_canvas");
+		var c = canvas.getContext("2d");
+		var mouse1X, mouse1Y, mouse2X, mouse2Y;
+		var penIsDown = false;
+		
+		$("#my_canvas").mousedown(function(e){
+			e.preventDefault();
+			mouse1X = e.pageX - this.offsetLeft;
+			mouse1Y = e.pageY - this.offsetTop;
+			//alert(mouse1X+", "+mouse1Y);
+			penIsDown = true;
+		});
+		
+		$('#my_canvas').mouseup(function(){
+			if(penIsDown){
+			penIsDown = false;
+			c.clearRect(0,0,canvas.width,canvas.height);
+			c.moveTo(mouse1X,mouse1Y);
+			c.lineTo(mouse2X,mouse2Y);
+			c.stroke();
+			canvas.save();
+			mouse1X = 0;mouse1Y = 0;
+			}
+		});
+		
+		$("#my_canvas").mousemove(function(e){
+			if(penIsDown){
+			mouse2X = e.pageX - this.offsetLeft;
+			mouse2Y = e.pageY - this.offsetTop;
+			c.clearRect(0,0,canvas.width,canvas.height);
+			c.beginPath();
+			c.moveTo(mouse1X,mouse1Y);
+			c.lineTo(mouse2X,mouse2Y);
+			c.stroke();}
+			})
+			
+		$('#my_canvas').mouseleave(function(){
+			//c.clearRect(0,0,canvas.width,canvas.height);
+			});
+	</script>
+</body>
+
+</html>

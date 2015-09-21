@@ -1,0 +1,41 @@
+<html>
+
+<head>
+	<style>
+		body{
+			margin : 0px;
+			padding : 0px;
+		}
+		
+		#my_canvas {
+				height : 100%;
+				width : 100%;
+				
+		}
+	</style>
+	<script type = "text/JavaScript" src = "jquery-1.9.1.min.js"></script>
+</head>
+
+<body>
+	<canvas id = "my_canvas" height = "668px" width = "1366px">
+	</canvas>
+	
+	<script>
+		var canvas = document.getElementById("my_canvas");
+		var c = canvas.getContext("2d");
+		var x=0, y=0, width, height=0; 
+		var i = 0,recNum = 50000;
+		
+	function render(){
+		c.clearRect(0,0,canvas.width,canvas.height);
+		for(i=0;i<recNum;i++){
+			x = Math.random()*canvas.width;
+			y = Math.random()*canvas.height;
+			c.fillRect(x,y,3,3);
+		}
+		}
+		setInterval(render,60);
+	</script>
+</body>
+
+</html>
