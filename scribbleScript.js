@@ -1,4 +1,4 @@
-
+	//alert('testing');
 		function dist( x1, y1, x2, y2){// this is the distance function
 			var distance = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
 			return distance;
@@ -57,7 +57,7 @@
 		var canvas2 = document.getElementById("canvas_2");
 		var canvasImg = document.getElementById("canvas_img");
 		var c1 = canvas1.getContext("2d");
-			c1.fillStyle = "6e6e6e";
+			c1.fillStyle = "#6e6e6e";
 			c1.strokeStyle = "#000000";
 			c1.font = "20px Arial";
 		var c2 = canvas2.getContext("2d");
@@ -99,6 +99,8 @@
 		
 		
 	function floodFill(startX,startY,ctx){
+		changeColor();//updates the canvas fillStyle to the selected in the colour selector tool
+		
 		imageData = ctx.getImageData(0,0,canvas1.width,canvas1.height);
 		startR = imageData.data[(startY*canvas1.width+startX)*4];
 		startG = imageData.data[(startY*canvas1.width+startX)*4+1];
