@@ -8,7 +8,7 @@
 
 <body>
 	
-	<canvas id = "canvas_img" height = "500px" width = "1000px" class = "scribblePad"></canvas>
+	<canvas id = "canvas_3" height = "500px" width = "1000px" class = "scribblePad"></canvas>
 	<canvas id = "canvas_1" height = "500px" width = "1000px" class = "scribblePad"></canvas>
 	<canvas id = "canvas_2" height = "500px" width = "1000px" class = "scribblePad"></canvas>
 	<div id = "canvas_screen" class = "scribblePad"></div>
@@ -45,6 +45,7 @@
 		<!--img src="#" id="imageUploaded" height="100px"/-->
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type = "text/JavaScript" src = "funcLibrary.js"></script>
     <script type = "text/JavaScript" src = "scribbleScript.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -66,7 +67,7 @@
         */
 
         function pingData(data){
-            connection.emit("send data", data);
+           connection.emit("send data", data);
         }
 
     </script>

@@ -1,61 +1,7 @@
 	//alert('testing');
-		function dist( x1, y1, x2, y2){// this is the distance function
-			var distance = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
-			return distance;
-		}
-		
-		function lineAngle(x0, y0, x1, y1){// This function calculates the inclination angle of any given line
-			var angle;
-		
-			if(x1>x0){
-				if(y1>y0){//quadrant 1
-					angle = Math.atan((y1-y0)/(x1-x0));
-				}
-				else if(y1==y0){//on +ve x axis
-						angle = 0;
-				}
-				else{//quadrant 4
-					angle = (Math.atan((y1-y0)/(x1-x0)))+(2*Math.PI);
-				}
-			}
-			else if(x1==x0){
-				if(y1>y0){//on +ve y axis
-					angle = 0.5*Math.PI;
-				}
-				else if(y1==y0){
-					angle = null;
-				}
-				else{// on -ve y axis
-					angle = 1.5*Math.PI;
-				}
-			}
-			else{
-				if(y1>y0){//quadrant 2
-					angle = (1*Math.PI)+(Math.atan((y1-y0)/(x1-x0)));
-				}
-				else if(y1==y0){//on -ve x axis
-					angle = 1*Math.PI;
-				}
-				else{//quadrant 3
-					angle = (1*Math.PI)+(Math.atan((y1-y0)/(x1-x0)));
-				}
-			}
-			
-			return angle;
-		}
-		
-		function hexToRgb(hex) {
-			var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-			return result ? {
-				r: parseInt(result[1], 16),
-				g: parseInt(result[2], 16),
-				b: parseInt(result[3], 16)
-			} : null;
-		}
-		
 		var canvas1 = document.getElementById("canvas_1");
 		var canvas2 = document.getElementById("canvas_2");
-		var canvasImg = document.getElementById("canvas_img");
+		var canvas3 = document.getElementById("canvas_3");
 		var c1 = canvas1.getContext("2d");
 			c1.fillStyle = "#6e6e6e";
 			c1.strokeStyle = "#000000";
@@ -63,10 +9,13 @@
 		var c2 = canvas2.getContext("2d");
 			c2.strokeStyle = "#575757";
 			c2.fillStyle = "#b8b8b8"
-		var c3 = canvasImg.getContext("2d");
+		var c3 = canvas3.getContext("2d");
+			c3.strokeStyle = 'green';
+			c3.lineWidth = 3;
 				
-		var mouse1X, mouse1Y, mouse2X, mouse2Y,mouse_ix,mouse_iy;
+		var mouse1X, mouse1Y, mouse2X, mouse2Y,mouse_ix,mouse_iy,mouseX,mouseY;
 		var centerX, centerY, radius, startAngle, stopAngle;
+		var curSnap;//the current snapping point
 		var penIsDown = false;
 		var centerSelected = false;
 		var curveStarted = false;
@@ -75,6 +24,7 @@
 		var helpText = $('#help_text');
 		var imageData;
 		var eraserSize = 30;;
+		var snappingDistance = 20;
 		
 		var currentTool = "none";
 		//variables for paint bucket tool<>
@@ -90,6 +40,8 @@
 		var imageIsLoaded = false;
 		//variables for imageUpload tool</>
 		
+		var snapVertices = new Array();
+		
 		var lines = new Array();
 		var rectangles = new Array();
 		var circles = new Array();
@@ -97,6 +49,43 @@
 		var curves = new Array();
 		var eraseArray = new Array();
 		
+	function isSnappingTo(pos, markBool){//returns if the position pos is within the snapping distance of another vertex
+		var snapPts = new Array();//the points which it is actually snapping to
+		
+		for(var i=0; i<snapVertices.length; i++){
+			var distance = dist(snapVertices[i][0], snapVertices[i][1], pos[0], pos[1]);
+			if(distance < snappingDistance){
+				snapPts.push(new Array(snapVertices[i][0], snapVertices[i][1], distance));
+			}
+		}
+		sort2D(snapPts, 2);
+		var snapPt;
+		if(snapPts.length > 0){
+			snapPt = new Array(snapPts[0][0],snapPts[0][1]);;
+			if(markBool){markPt(snapPt,c3);}
+			return snapPt;
+		}else{
+			return 'none';
+		}
+	}
+	
+	function addVertex(x,y){// adds the given vertex to teh snapVertices array
+		var pt = [x,y];
+		snapVertices.push(pt);
+		//markPt(pt,c1);
+	}
+	
+	function cleanArray(ar){
+		for (var i = 0; i < ar.length; i++){
+			var checkPt = ar.shift();
+			if(!arr2dContains(ar, checkPt)){ar.push(checkPt);}
+		}
+	}
+	
+	function clearTempCanvases(){//clears all the temporary canvases that hold previews and snap points etc.
+		c2.clearRect(0,0,canvas2.width,canvas2.height);
+		c3.clearRect(0,0,canvas2.width,canvas2.height);
+	}
 		
 	function floodFill(startX,startY,ctx){
 		imageData = ctx.getImageData(0,0,canvas1.width,canvas1.height);
@@ -235,21 +224,36 @@
 			if(!penIsDown){
 				mouse1X = e.pageX - this.offsetLeft;
 				mouse1Y = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					mouse1X = curSnap[0];
+					mouse1Y = curSnap[1];
+				}
+				
 				penIsDown = true;
 				helpText.text('Pick the ending point or Hit Esc to stop drawing');
 			}
 			else if(penIsDown){
 				mouse2X = e.pageX - this.offsetLeft;
 				mouse2Y = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					mouse2X = curSnap[0];
+					mouse2Y = curSnap[1];
+				}
+				
 				penIsDown = false;
 				//console.log(mouse2X+", "+mouse2Y);
-				c2.clearRect(0,0,canvas2.width,canvas2.height);
+				clearTempCanvases()
 				c1.beginPath();
 				c1.moveTo(mouse1X,mouse1Y);
 				c1.lineTo(mouse2X,mouse2Y);
 				lines.push(new Array(mouse1X,mouse1Y,mouse2X,mouse2Y));
 				c1.stroke();
 				helpText.text('Pick the starting point');
+				
+				addVertex(mouse1X,mouse1Y);
+				addVertex(mouse2X,mouse2Y);
 				
 				var lineObj = {type : "line", startPt : new Array(mouse1X,mouse1Y), endPt : new Array(mouse2X,mouse2Y)};
 				pingData(lineObj);
@@ -260,6 +264,12 @@
 			if(!penIsDown){
 				mouse1X = e.pageX - this.offsetLeft;
 				mouse1Y = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					mouse1X = curSnap[0];
+					mouse1Y = curSnap[1];
+				}
+				
 				penIsDown = true;
 				helpText.text('Continue picking points. Hit Esc to stop drawing');
 				//console.log(mouse1X+", "+mouse1Y);
@@ -267,14 +277,24 @@
 			else if(penIsDown){
 				mouse2X = e.pageX - this.offsetLeft;
 				mouse2Y = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					mouse2X = curSnap[0];
+					mouse2Y = curSnap[1];
+				}
+				
 				c1.beginPath();
 				c1.moveTo(mouse1X,mouse1Y);
 				c1.lineTo(mouse2X,mouse2Y);
 				lines.push(new Array(mouse1X,mouse1Y,mouse2X,mouse2Y));
 				c1.stroke();
-				mouse1X = mouse2X; mouse1Y = mouse2Y;
+				
+				addVertex(mouse1X,mouse1Y);
+				addVertex(mouse2X,mouse2Y);
 				
 				var lineObj = {type : "line", startPt : new Array(mouse1X,mouse1Y), endPt : new Array(mouse2X,mouse2Y)};
+				mouse1X = mouse2X; mouse1Y = mouse2Y;
+				
 				pingData(lineObj);
 			}
 			}
@@ -284,6 +304,12 @@
 			if(!penIsDown){
 				mouse1X = e.pageX - this.offsetLeft;
 				mouse1Y = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					mouse1X = curSnap[0];
+					mouse1Y = curSnap[1];
+				}
+				
 				//console.log(mouse1X+", "+mouse1Y);
 				penIsDown = true;
 				helpText.text('Pick the second corner or Hit Esc to stop drawing');
@@ -291,6 +317,12 @@
 			else if(penIsDown){
 				mouse2X = e.pageX - this.offsetLeft;
 				mouse2Y = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					mouse2X = curSnap[0];
+					mouse2Y = curSnap[1];
+				}
+				
 				penIsDown = false;
 				c1.beginPath();
 				c1.strokeRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
@@ -298,6 +330,12 @@
 					c1.fillRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 				}
 				rectangles.push(new Array(mouse1X,mouse1Y,mouse2X,mouse2Y,fillCheckbox.checked));
+				
+				addVertex(mouse1X,mouse1Y);
+				addVertex(mouse2X,mouse2Y);
+				addVertex(mouse1X,mouse2Y);
+				addVertex(mouse2X,mouse1Y);
+				
 				helpText.text('Pick first corner of the rectangle');
 				//pushing the corner coordinates to the array - last element is a bool whether the rectangle should be filled or not.
 				
@@ -312,6 +350,12 @@
 			if(!centerSelected){
 				centerX = e.pageX - this.offsetLeft;
 				centerY = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					centerX = curSnap[0];
+					centerY = curSnap[1];
+				}
+				
 				centerSelected = true;
 				helpText.text('Pick the starting point of the arc/circle');
 				//console.log(centerX + ", " + centerY);
@@ -320,6 +364,12 @@
 				if(!penIsDown){
 					mouse1X = e.pageX - this.offsetLeft;
 					mouse1Y = e.pageY - this.offsetTop;
+					//snapping to nearest points if any
+					if(curSnap != 'none'){
+						mouse1X = curSnap[0];
+						mouse1Y = curSnap[1];
+					}
+					
 					penIsDown = true;
 					
 					radius = dist(centerX,centerY,mouse1X,mouse1Y);
@@ -329,6 +379,12 @@
 				else if(penIsDown){
 					mouse2X = e.pageX - this.offsetLeft;
 					mouse2Y = e.pageY - this.offsetTop;
+					//snapping to nearest points if any
+					if(curSnap != 'none'){
+						mouse2X = curSnap[0];
+						mouse2Y = curSnap[1];
+					}
+					
 					penIsDown = false;
 					centerSelected = false;
 					
@@ -338,25 +394,31 @@
 							else if(!reverseCheckbox.checked){stopAngle = startAngle - 2*Math.PI}
 					}
 					
+					var cirObj;//the object to be sent to the server representing this circle
 					c1.beginPath();
 					if(reverseCheckbox.checked){
 						c1.arc(centerX,centerY,radius,startAngle,stopAngle);
 						circles.push(new Array(centerX,centerY,radius,startAngle,stopAngle));
 						
-						var cirObj = {type: "circle", center: new Array(centerX, centerY), rad: radius, Ang1: startAngle, 
+						cirObj = {type: "circle", center: new Array(centerX, centerY), rad: radius, Ang1: startAngle, 
 										Ang2: stopAngle};
-						pingData(cirObj);
-					}
-					else{
-						c1.arc(centerX,centerY,radius,stopAngle,startAngle);
+					}else{
+						c1.arc(centerX,centerY,radius,stopAngle,startAngle);//console.log('here');
 						circles.push(new Array(centerX,centerY,radius,stopAngle,startAngle));
 						
-						var cirObj = {type: "circle", center: new Array(centerX, centerY), rad: radius, Ang1: stopAngle, 
+						cirObj = {type: "circle", center: new Array(centerX, centerY), rad: radius, Ang1: stopAngle, 
 										Ang2: startAngle};
-						pingData(cirObj);
 					}
+					
+					var othPt = vSum([centerX,centerY],vPrd(unitV(vDiff([mouse2X,mouse2Y],[centerX,centerY])),radius));
+					
+					//addVertex(centerX, centerY);//decide later whether to add the center or not
+					addVertex(mouse1X, mouse1Y);
+					addVertex(othPt[0], othPt[1]);
+					
 					c1.stroke();
 					helpText.text('Select the centre of the arc/circle');
+					pingData(cirObj);
 				}
 			}
 		}
@@ -377,9 +439,9 @@
 				penIsDown = false;
 				
 				var frObj = {type: "freehand", points: freeHand}
-				pingData(frObj);
 				
 				helpText.text('Click to start drawing free hand');
+				pingData(frObj);
 			}
 		}
 		else if(currentTool == "curve"){
@@ -387,6 +449,12 @@
 				penIsDown = true;//console.log('penIsDown = '+penIsDown);
 				mouse1X = e.pageX - this.offsetLeft;
 				mouse1Y = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					mouse1X = curSnap[0];
+					mouse1Y = curSnap[1];
+				}
+				
 				helpText.text('continue selecting control points or hit Esc to stop');
 			}
 			else if(penIsDown){
@@ -394,23 +462,38 @@
 					curveStarted = true;
 					mouse_ix = e.pageX - this.offsetLeft;
 					mouse_iy = e.pageY - this.offsetTop;
+					//snapping to nearest points if any
+					if(curSnap != 'none'){
+						mouse_ix = curSnap[0];
+						mouse_iy = curSnap[1];
+					}	
 				}
 				else if(curveStarted){
 					mouse2X = e.pageX - this.offsetLeft;
 					mouse2Y = e.pageY - this.offsetTop;
+					//snapping to nearest points if any
+					if(curSnap != 'none'){
+						mouse2X = curSnap[0];
+						mouse2Y = curSnap[1];
+					}
+					
 					c1.beginPath();
 					c1.moveTo(mouse1X,mouse1Y);
 					c1.quadraticCurveTo(mouse_ix,mouse_iy,(mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2);
 					c1.stroke();
 					curves.push(new Array(mouse1X,mouse1Y,mouse_ix,mouse_iy,(mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2));
 					
+					addVertex(mouse1X,mouse1Y);
+					addVertex((mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2);
+					
 					var curObj = {type: "curve", startPt: new Array(mouse1X, mouse1Y), intPt: new Array(mouse_ix,mouse_iy),
 									endPt: new Array((mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2)};
-					pingData(curObj);
 					//console.log(mouse_ix,mouse_iy);
 					//console.log(mouse1X+" "+mouse1Y+" "+mouse_ix+" "+mouse_iy+" "+(mouse_ix+mouse2X)/2+" "+(mouse_iy+mouse2Y)/2);
 					mouse1X = (mouse_ix+mouse2X)/2;mouse1Y = (mouse_iy+mouse2Y)/2;
 					mouse_ix = mouse2X;mouse_iy = mouse2Y;
+					
+					pingData(curObj);
 				}
 			}
 		}
@@ -450,15 +533,14 @@
 		else if(currentTool == "image"){
 			imgUpload = $('#imgUpload');
 			if(!penIsDown){
-					if(imageIsLoaded){
+				if(imageIsLoaded){
 					aspectRatio = $('#imageUploaded').height()/$('#imageUploaded').width();//defining the aspect ratio of the image
 				
 					mouse1X = e.pageX - this.offsetLeft;
 					mouse1Y = e.pageY - this.offsetTop;
-			
 					imageUploaded = document.getElementById('imageUploaded');
 					//c2.drawImage(imageUploaded,mouse1X,mouse1Y);
-					penIsDown = true;
+					penIsDown = true;//console.log(penIsDown);
 					helpText.text('Resize the image to the wanted size and click to draw the image');
 				}
 				else if(!imageIsLoaded){
@@ -466,23 +548,25 @@
 				}
 			}
 			else if(penIsDown){
-				c2.clearRect(0,0,canvas2.width,canvas2.height);
+				clearTempCanvases()
 				
 				mouse2X = e.pageX - this.offsetLeft;
 				mouse2Y = e.pageY - this.offsetTop;
 				
 				c3.drawImage(imageUploaded,mouse1X,mouse1Y,mouse2X-mouse1X,(mouse2X-mouse1X)*aspectRatio);
 				
-				var encImg = canvasImg.toDataURL();
+				var encImg = canvas3.toDataURL();
 				var imgObj = {type: "image", image: encImg};
 				c3.clearRect(0,0,canvas1.width,canvas1.height);
+				
 				c1.drawImage(imageUploaded,mouse1X,mouse1Y,mouse2X-mouse1X,(mouse2X-mouse1X)*aspectRatio);
-				pingData(imgObj);
+			
+				penIsDown = false;//console.log(penIsDown);
 				//$('#imageUploaded').remove();removing the image division which was hidden
 				//imgUpload.replaceWith( imgUpload = imgUpload.clone( true ) );//resetting the input file element
-				penIsDown = false;
 				//imageIsLoaded = false;
 				helpText.text('Choose an image file to upload and draw');
+				pingData(imgObj);
 			}
 		}
 		else if(currentTool == "text"){
@@ -508,7 +592,7 @@
 	$('.scribblePad').mousemove(function(e){
 		if(currentTool == "line"){
 			if(penIsDown){
-				c2.clearRect(0,0,canvas2.width,canvas2.height);
+				clearTempCanvases()
 				mouse2X = e.pageX - this.offsetLeft;
 				mouse2Y = e.pageY - this.offsetTop;
 				c2.beginPath();
@@ -517,23 +601,23 @@
 				c2.stroke();
 				//console.log(mouse2X+", "+mouse2Y);
 			}
-			else if(!penIsDown){c2.clearRect(0,0,canvas2.width,canvas2.height);}
+			else if(!penIsDown){clearTempCanvases()}
 		}
 		else if(currentTool == "rectangle"){
 			if(penIsDown){
-				c2.clearRect(0,0,canvas2.width,canvas2.height);
+				clearTempCanvases()
 				mouse2X = e.pageX - this.offsetLeft;
 				mouse2Y = e.pageY - this.offsetTop;
 				c2.beginPath();
 				c2.strokeRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 			}
-			else if(!penIsDown){c2.clearRect(0,0,canvas2.width,canvas2.height);}
+			else if(!penIsDown){clearTempCanvases()}
 		}
 		else if(currentTool == "circle"){
-			if(!centerSelected){c2.clearRect(0,0,canvas2.width,canvas2.height);}
+			if(!centerSelected){clearTempCanvases()}
 			else if(centerSelected){
 				if(!penIsDown){
-					c2.clearRect(0,0,canvas2.width,canvas2.height);
+					clearTempCanvases()
 					mouse_ix = e.pageX - this.offsetLeft;
 					mouse_iy = e.pageY - this.offsetTop;
 					c2.beginPath();
@@ -542,7 +626,7 @@
 					c2.stroke();
 				}
 				else if(penIsDown){
-					c2.clearRect(0,0,canvas2.width,canvas2.height);
+					clearTempCanvases()
 					mouse_ix = e.pageX - this.offsetLeft;
 					mouse_iy = e.pageY - this.offsetTop;
 					
@@ -575,7 +659,7 @@
 		else if(currentTool == "curve"){
 			if(penIsDown){
 				if(!curveStarted){
-					c2.clearRect(0,0,canvas2.width,canvas2.height);
+					clearTempCanvases()
 					mouse2X = e.pageX - this.offsetLeft;
 					mouse2Y = e.pageY - this.offsetTop;
 					c2.beginPath();
@@ -585,7 +669,7 @@
 					//console.log(mouse2X+", "+mouse2Y);
 				}
 				else if(curveStarted){
-					c2.clearRect(0,0,canvas2.width,canvas2.height);
+					clearTempCanvases()
 					mouse2X = e.pageX - this.offsetLeft;
 					mouse2Y = e.pageY - this.offsetTop;
 					c2.beginPath();
@@ -599,21 +683,25 @@
 					//console.log(mouse2X+", "+mouse2Y);
 				}
 			}
-			else if(!penIsDown){c2.clearRect(0,0,canvas2.width,canvas2.height);}
+			else if(!penIsDown){clearTempCanvases()}
+		}
+		else if(currentTool == "floodFill"){
+			clearTempCanvases();
+			curSnap = 'none';
 		}
 		else if(currentTool == "eraser"){
 			if(penIsDown){
-				c2.clearRect(0,0,canvas2.width,canvas2.height);
+				clearTempCanvases()
 				mouse2X = e.pageX - this.offsetLeft;
 				mouse2Y = e.pageY - this.offsetTop;
 				c2.beginPath();
 				c2.strokeRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 			}
-			else if(!penIsDown){c2.clearRect(0,0,canvas2.width,canvas2.height);}
+			else if(!penIsDown){clearTempCanvases()}
 		}
 		else if(currentTool == "image"){
 			if(penIsDown){
-				c2.clearRect(0,0,canvas2.width,canvas2.height);
+				clearTempCanvases()
 				
 				mouse2X = e.pageX - this.offsetLeft;
 				mouse2Y = e.pageY - this.offsetTop;
@@ -621,7 +709,7 @@
 				c2.drawImage(imageUploaded,mouse1X,mouse1Y,mouse2X-mouse1X,(mouse2X-mouse1X)*aspectRatio);
 			}
 			else if(!penIsDown){
-				c2.clearRect(0,0,canvas2.width,canvas2.height);
+				clearTempCanvases()
 			}
 		}
 		else if(currentTool == "text"){
@@ -631,10 +719,18 @@
 			var txt = $('#text_input').val();
 			var txtSize = $('#textSize').val();
 			if(txt != ""){
-				c2.clearRect(0,0,canvas2.width,canvas2.height);
+				clearTempCanvases()
 				c2.font = txtSize+"px Arial";
 				c2.fillText(txt, mouse1X, mouse1Y);
 			}
+		}
+		
+		if(currentTool != 'floodFill'){
+			//clearTempCanvases()
+			mouseX = e.pageX - this.offsetLeft;
+			mouseY = e.pageY - this.offsetTop;
+			//updating the nearest snapping point if any
+			curSnap = isSnappingTo([mouseX, mouseY], true);
 		}
 	});
 		
@@ -645,16 +741,18 @@
 			if(currentTool == "freehand"){
 				freeHand[freeHand.length-1][2] = false;
 			}
-		penIsDown = false;
-		centerSelected = false;
-		curveStarted = false;
-		c2.clearRect(0,0,canvas2.width,canvas2.height);
-		loadTool();
+			penIsDown = false;
+			centerSelected = false;
+			curveStarted = false;
+			clearTempCanvases()
+			loadTool();
 		}
+		
+		cleanArray(snapVertices);
 	}
 		
 	$('#clear_btn').click(function(){
-		c2.clearRect(0,0,canvas2.width,canvas2.height);
+		clearTempCanvases()
 		c1.clearRect(0,0,canvas1.width,canvas1.height);
 		penIsDown = false;
 	});

@@ -4,7 +4,7 @@ body{
 			
 		}
 		
-		#canvas_1,#canvas_img {
+		#canvas_1 {
 			border : solid red 1px;	
 			cursor : crosshair;
 			-moz-user-select: none; 
@@ -17,7 +17,7 @@ body{
 			z-index : 500;
 		}
 		
-		#canvas_2 {
+		#canvas_2, #canvas_3 {
 			border : solid red 1px;	
 			cursor : crosshair;
 			-moz-user-select: none; 
