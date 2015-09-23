@@ -99,8 +99,6 @@
 		
 		
 	function floodFill(startX,startY,ctx){
-		changeColor();//updates the canvas fillStyle to the selected in the colour selector tool
-		
 		imageData = ctx.getImageData(0,0,canvas1.width,canvas1.height);
 		startR = imageData.data[(startY*canvas1.width+startX)*4];
 		startG = imageData.data[(startY*canvas1.width+startX)*4+1];
@@ -420,6 +418,7 @@
 			var startX = e.pageX - this.offsetLeft;
 			var startY = e.pageY - this.offsetTop;
 			
+			changeColor();//updates the canvas fillStyle to the selected in the colour selector tool
 			floodFill(startX, startY, c1);
 			
 			var floodObj = {type: "flood", floodPt: new Array(startX,startY), floodColor: c1.fillStyle};
