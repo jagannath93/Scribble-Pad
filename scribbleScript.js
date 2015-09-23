@@ -73,6 +73,7 @@
 		var pt = [x,y];
 		snapVertices.push(pt);
 		//markPt(pt,c1);
+		//here add code to send this vertex to the server and then added to the snapVertices array on the other side.
 	}
 	
 	function cleanArray(ar){
@@ -522,6 +523,16 @@
 				c1.beginPath();
 				c1.clearRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 				
+				for(var i in snapVertices){
+					if((snapVertices[i][0]>mouse1X && snapVertices[i][0]<mouse2X)||
+						(snapVertices[i][0]>mouse2X && snapVertices[i][0]<mouse1X)){
+							if((snapVertices[i][1]>mouse1Y && snapVertices[i][1]<mouse2Y)||
+								(snapVertices[i][1]>mouse2Y && snapVertices[i][1]<mouse1Y)){
+									snapVertices.splice(i,1);
+								}
+						}
+				}
+				
 				helpText.text('Pick first corner of the area to be cleared');
 				//pushing the corner coordinates to the array - last element is a bool whether the rectangle should be filled or not.
 				
@@ -690,6 +701,7 @@
 			curSnap = 'none';
 		}
 		else if(currentTool == "eraser"){
+			curSnap = 'none';
 			if(penIsDown){
 				clearTempCanvases()
 				mouse2X = e.pageX - this.offsetLeft;
@@ -725,7 +737,7 @@
 			}
 		}
 		
-		if(currentTool != 'floodFill'){
+		if(currentTool != 'floodFill' && currentTool != 'eraser'){
 			//clearTempCanvases()
 			mouseX = e.pageX - this.offsetLeft;
 			mouseY = e.pageY - this.offsetTop;
