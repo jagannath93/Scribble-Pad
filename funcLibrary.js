@@ -83,7 +83,7 @@ function hexToRgb(hex) {
 				b: parseInt(result[3], 16)
 			} : null;
 		}
-
+		
 function mod(vec){//gives the modulus of a vector
 	var r = Math.sqrt((vec[0]*vec[0])+(vec[1]*vec[1]));
 	return r;
@@ -190,4 +190,13 @@ function roundOff(vect,rndOff){
 function roundNum(num,dec){//rounds off number num to dec decimals
 	var newNum = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
 	return newNum;
+}
+
+function addColors(r1,g1,b1,a1,r2,g2,b2,a2){//adds these two colors and returs [r,g,b,a]
+	var a = a1 + a2*(1-a1);
+	var r = (r1*a1 + r2*a2*(1-a1))/a;
+	var g = (g1*a1 + g2*a2*(1-a1))/a;
+	var b = (b1*a1 + b2*a2*(1-a1))/a;
+	
+	return [r,g,b,a];
 }
