@@ -73,7 +73,6 @@
 		var pt = [x,y];
 		snapVertices.push(pt);
 		//markPt(pt,c1);
-		//here add code to send this vertex to the server and then added to the snapVertices array on the other side.
 	}
 	
 	function cleanArray(ar){
@@ -171,6 +170,9 @@
 			rc.moveTo(obj.startPt[0], obj.startPt[1]);
 			rc.lineTo(obj.endPt[0], obj.endPt[1]);
 			rc.stroke();
+			//adding the snapping points
+			addVertex(obj.startPt[0], obj.startPt[1]);
+			addVertex(obj.endPt[0], obj.endPt[1]);
 		}else if(obj.type == "rectangle"){
 			rc.beginPath();
 			rc.strokeRect(obj.vert1[0],obj.vert1[1],obj.vert2[0]-obj.vert1[0],obj.vert2[1]-obj.vert1[1]);
@@ -178,10 +180,18 @@
 				rc.fillStyle = obj.fillColor;
 				rc.fillRect(obj.vert1[0],obj.vert1[1],obj.vert2[0]-obj.vert1[0],obj.vert2[1]-obj.vert1[1]);
 			}
+			//adding the snapping points
+			addVertex(obj.vert1[0],obj.vert1[1]);
+			addVertex(obj.vert2[0],obj.vert2[1]);
+			addVertex(obj.vert1[0],obj.vert2[1]);
+			addVertex(obj.vert2[0],obj.vert1[1]);
 		}else if(obj.type == "circle"){
 			rc.beginPath();
 			rc.arc(obj.center[0], obj.center[1], obj.rad, obj.Ang1, obj.Ang2);
 			rc.stroke();
+			//adding the snapping points
+			addVertex(obj.vert1[0], obj.vert1[1]);
+			addVertex(obj.vert2[0], obj.vert2[1]);
 		}
 		else if(obj.type == "freehand"){
 			rc.beginPath();
@@ -196,6 +206,9 @@
 			rc.moveTo(obj.startPt[0], obj.startPt[1]);
 			rc.quadraticCurveTo(obj.intPt[0],obj.intPt[1], obj.endPt[0], obj.endPt[1]);
 			rc.stroke();
+			//adding the snapping points
+			addVertex(obj.startPt[0], obj.startPt[1]);
+			addVertex(obj.endPt[0], obj.endPt[1]);
 		}
 		else if(obj.type == "flood"){
 			rc.fillStyle = obj.floodColor;
@@ -396,22 +409,21 @@
 					}
 					
 					var cirObj;//the object to be sent to the server representing this circle
+					var othPt = vSum([centerX,centerY],vPrd(unitV(vDiff([mouse2X,mouse2Y],[centerX,centerY])),radius));
 					c1.beginPath();
 					if(reverseCheckbox.checked){
 						c1.arc(centerX,centerY,radius,startAngle,stopAngle);
 						circles.push(new Array(centerX,centerY,radius,startAngle,stopAngle));
 						
 						cirObj = {type: "circle", center: new Array(centerX, centerY), rad: radius, Ang1: startAngle, 
-										Ang2: stopAngle};
+										Ang2: stopAngle, vert1: new Array(mouse1X, mouse1Y), vert2: othPt};
 					}else{
 						c1.arc(centerX,centerY,radius,stopAngle,startAngle);//console.log('here');
 						circles.push(new Array(centerX,centerY,radius,stopAngle,startAngle));
 						
 						cirObj = {type: "circle", center: new Array(centerX, centerY), rad: radius, Ang1: stopAngle, 
-										Ang2: startAngle};
+										Ang2: startAngle, vert1: new Array(mouse1X, mouse1Y), vert2: othPt};
 					}
-					
-					var othPt = vSum([centerX,centerY],vPrd(unitV(vDiff([mouse2X,mouse2Y],[centerX,centerY])),radius));
 					
 					//addVertex(centerX, centerY);//decide later whether to add the center or not
 					addVertex(mouse1X, mouse1Y);
