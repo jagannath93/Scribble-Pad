@@ -6,9 +6,11 @@
 			c1.fillStyle = $('#fillColor').val();
 			c1.strokeStyle =  $('#strokeColor').val();
 			c1.font = "20px Arial";
+			c1.lineJoin = 'round';
 		var c2 = canvas2.getContext("2d");
 			c2.strokeStyle = "#000000";
 			c2.fillStyle = "#b8b8b8"
+			c2.lineJoin = 'round';
 		var c3 = canvas3.getContext("2d");
 			c3.strokeStyle = 'green';
 			c3.lineWidth = 3;
@@ -166,6 +168,7 @@
             rc = c1;
         }
 		if(obj.type == "line"){
+			rc.lineWidth = obj.strokeWidth;
 			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
 			rc.moveTo(obj.startPt[0], obj.startPt[1]);
@@ -175,6 +178,7 @@
 			addVertex(obj.startPt[0], obj.startPt[1]);
 			addVertex(obj.endPt[0], obj.endPt[1]);
 		}else if(obj.type == "rectangle"){
+			rc.lineWidth = obj.strokeWidth;
 			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
 			rc.strokeRect(obj.vert1[0],obj.vert1[1],obj.vert2[0]-obj.vert1[0],obj.vert2[1]-obj.vert1[1]);
@@ -188,6 +192,7 @@
 			addVertex(obj.vert1[0],obj.vert2[1]);
 			addVertex(obj.vert2[0],obj.vert1[1]);
 		}else if(obj.type == "circle"){
+			rc.lineWidth = obj.strokeWidth;
 			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
 			rc.arc(obj.center[0], obj.center[1], obj.rad, obj.Ang1, obj.Ang2);
@@ -197,6 +202,7 @@
 			addVertex(obj.vert2[0], obj.vert2[1]);
 		}
 		else if(obj.type == "freehand"){
+			rc.lineWidth = obj.strokeWidth;
 			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
 			rc.moveTo(obj.points[0][0], obj.points[0][1]);
@@ -206,6 +212,7 @@
 			rc.stroke();
 		}
 		else if(obj.type == "curve"){
+			rc.lineWidth = obj.strokeWidth;
 			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
 			rc.moveTo(obj.startPt[0], obj.startPt[1]);
@@ -279,7 +286,7 @@
 				c1.lineTo(mouse2X,mouse2Y);
 				lines.push(new Array(mouse1X,mouse1Y,mouse2X,mouse2Y));
 				
-				c1.strokeStyle =  $('#strokeColor').val();
+				updatePen();
 				c1.stroke();
 				helpText.text('Pick the starting point');
 				
@@ -287,7 +294,7 @@
 				addVertex(mouse2X,mouse2Y);
 				
 				var lineObj = {type : "line", startPt : new Array(mouse1X,mouse1Y), endPt : new Array(mouse2X,mouse2Y),
-								strokeColor: c1.strokeStyle};
+								strokeColor: c1.strokeStyle, strokeWidth: c1.lineWidth};
 				pingData(lineObj);
 			}
 			}
@@ -320,14 +327,14 @@
 				c1.lineTo(mouse2X,mouse2Y);
 				lines.push(new Array(mouse1X,mouse1Y,mouse2X,mouse2Y));
 				
-				c1.strokeStyle =  $('#strokeColor').val();
+				updatePen();
 				c1.stroke();
 				
 				addVertex(mouse1X,mouse1Y);
 				addVertex(mouse2X,mouse2Y);
 				
 				var lineObj = {type : "line", startPt : new Array(mouse1X,mouse1Y), endPt : new Array(mouse2X,mouse2Y),
-								strokeColor: c1.strokeStyle};
+								strokeColor: c1.strokeStyle, strokeWidth: c1.lineWidth};
 				mouse1X = mouse2X; mouse1Y = mouse2Y;
 				
 				pingData(lineObj);
@@ -360,11 +367,10 @@
 				
 				penIsDown = false;
 				
-				c1.strokeStyle =  $('#strokeColor').val();
+				updatePen();
 				c1.beginPath();
 				c1.strokeRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 				if(fillCheckbox.checked){
-					c1.fillStyle = $('#fillColor').val();
 					c1.fillRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 				}
 				rectangles.push(new Array(mouse1X,mouse1Y,mouse2X,mouse2Y,fillCheckbox.checked));
@@ -378,7 +384,8 @@
 				//pushing the corner coordinates to the array - last element is a bool whether the rectangle should be filled or not.
 				
 				var recObj = {type: "rectangle", vert1: new Array(mouse1X,mouse1Y), vert2: new Array(mouse2X,mouse2Y), 
-								tobeFilled: fillCheckbox.checked, fillColor: c1.fillStyle, strokeColor: c1.strokeStyle};
+								tobeFilled: fillCheckbox.checked, fillColor: c1.fillStyle, strokeColor: c1.strokeStyle,
+								strokeWidth: c1.lineWidth};
 				pingData(recObj);
 			}
 			
@@ -435,20 +442,22 @@
 					var cirObj;//the object to be sent to the server representing this circle
 					var othPt = vSum([centerX,centerY],vPrd(unitV(vDiff([mouse2X,mouse2Y],[centerX,centerY])),radius));
 					
-					c1.strokeStyle =  $('#strokeColor').val();
+					updatePen();
 					c1.beginPath();
 					if(reverseCheckbox.checked){
 						c1.arc(centerX,centerY,radius,startAngle,stopAngle);
 						circles.push(new Array(centerX,centerY,radius,startAngle,stopAngle));
 						
 						cirObj = {type: "circle", center: new Array(centerX, centerY), rad: radius, Ang1: startAngle, 
-										Ang2: stopAngle, vert1: new Array(mouse1X, mouse1Y), vert2: othPt, strokeColor: c1.strokeStyle};
+										Ang2: stopAngle, vert1: new Array(mouse1X, mouse1Y), vert2: othPt, strokeColor: c1.strokeStyle,
+										strokeWidth: c1.lineWidth};
 					}else{
 						c1.arc(centerX,centerY,radius,stopAngle,startAngle);//console.log('here');
 						circles.push(new Array(centerX,centerY,radius,stopAngle,startAngle));
 						
 						cirObj = {type: "circle", center: new Array(centerX, centerY), rad: radius, Ang1: stopAngle, 
-										Ang2: startAngle, vert1: new Array(mouse1X, mouse1Y), vert2: othPt, strokeColor: c1.strokeStyle};
+										Ang2: startAngle, vert1: new Array(mouse1X, mouse1Y), vert2: othPt, strokeColor: c1.strokeStyle,
+										strokeWidth: c1.lineWidth};
 					}
 					
 					//addVertex(centerX, centerY);//decide later whether to add the center or not
@@ -464,7 +473,7 @@
 		else if(currentTool == "freehand"){
 			if(!penIsDown){
 				penIsDown = true;
-				c1.strokeStyle =  $('#strokeColor').val();
+				updatePen();
 				freeHand = [];
 				mouse1X = e.pageX - this.offsetLeft;
 				mouse1Y = e.pageY - this.offsetTop;
@@ -475,10 +484,17 @@
 				helpText.text('Click to stop drawing');
 			}
 			else if(penIsDown){
-				//freeHand[freeHand.length-1][2] = false;
+				clearTempCanvases();
+				c1.beginPath();
+				c1.moveTo(freeHand[0][0], freeHand[0][1]);
+				for(var i=1; i < freeHand.length; i++){
+					c1.lineTo(freeHand[i][0], freeHand[i][1]);
+				}
+				updatePen();
+				c1.stroke();
 				penIsDown = false;
 				
-				var frObj = {type: "freehand", points: freeHand, strokeColor: c1.strokeStyle}
+				var frObj = {type: "freehand", points: freeHand, strokeColor: c1.strokeStyle, strokeWidth: c1.lineWidth}
 				
 				helpText.text('Click to start drawing free hand');
 				pingData(frObj);
@@ -517,7 +533,7 @@
 						mouse2Y = curSnap[1];
 					}
 					
-					c1.strokeStyle =  $('#strokeColor').val();
+					updatePen();
 					c1.beginPath();
 					c1.moveTo(mouse1X,mouse1Y);
 					c1.quadraticCurveTo(mouse_ix,mouse_iy,(mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2);
@@ -528,7 +544,8 @@
 					addVertex((mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2);
 					
 					var curObj = {type: "curve", startPt: new Array(mouse1X, mouse1Y), intPt: new Array(mouse_ix,mouse_iy),
-									endPt: new Array((mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2), strokeColor: c1.strokeStyle};
+									endPt: new Array((mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2), strokeColor: c1.strokeStyle,
+									strokeWidth: c1.lineWidth};
 					//console.log(mouse_ix,mouse_iy);
 					//console.log(mouse1X+" "+mouse1Y+" "+mouse_ix+" "+mouse_iy+" "+(mouse_ix+mouse2X)/2+" "+(mouse_iy+mouse2Y)/2);
 					mouse1X = (mouse_ix+mouse2X)/2;mouse1Y = (mouse_iy+mouse2Y)/2;
@@ -542,7 +559,7 @@
 			var startX = e.pageX - this.offsetLeft;
 			var startY = e.pageY - this.offsetTop;
 			
-			changeColor();//updates the canvas fillStyle to the selected in the colour selector tool
+			updatePen();//updates the canvas fillStyle to the selected in the colour selector tool
 			floodFill(startX, startY, c1);
 			
 			var floodObj = {type: "flood", floodPt: new Array(startX,startY), floodColor: c1.fillStyle};
@@ -701,10 +718,10 @@
 				mouse1Y = mouse2Y;
 				mouse2X = e.pageX - this.offsetLeft;
 				mouse2Y = e.pageY - this.offsetTop;
-				c1.beginPath();
-				c1.moveTo(mouse1X,mouse1Y);
-				c1.lineTo(mouse2X,mouse2Y);
-				c1.stroke();
+				c2.beginPath();
+				c2.moveTo(mouse1X,mouse1Y);
+				c2.lineTo(mouse2X,mouse2Y);
+				c2.stroke();
 				freeHand.push(new Array(mouse2X,mouse2Y));
 			}else{
 				clearTempCanvases();
@@ -956,9 +973,16 @@
 		}
 	}
 	
-	function changeColor(){
+	function updatePen(){//updates stroke, fill, lineWidths etc.
 		c1.fillStyle = $('#fillColor').val();
 		c2.fillStyle = $('#fillColor').val();
+		
+		c1.strokeStyle =  $('#strokeColor').val();
+		
+		if($('#lineWidth').val() > 20){$('#lineWidth').val(20);}
+		if($('#lineWidth').val() <1){$('#lineWidth').val(1);}
+		c1.lineWidth = $('#lineWidth').val();
+		c2.lineWidth = $('#lineWidth').val();
 	}
 	
 	function saveImage(){
