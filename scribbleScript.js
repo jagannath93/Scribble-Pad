@@ -842,7 +842,8 @@
 			}
 		}
 		
-		if(currentTool != 'floodFill' && currentTool != 'eraser' && currentTool != 'text' && currentTool != 'freehand'){
+		if(currentTool != 'floodFill' && currentTool != 'eraser' && currentTool != 'text' && currentTool != 'freehand' &&
+			currentTool != 'none'){
 			if(vSnapCheckBox.checked){
 				//clearTempCanvases()
 				mouseX = e.pageX - this.offsetLeft;
