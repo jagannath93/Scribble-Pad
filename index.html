@@ -14,35 +14,39 @@
 	<div id = "canvas_screen" class = "scribblePad"></div>
 	<br />
 	<div id = "tool_box">
-	<select id = "tool_list" onchange = "loadTool()">
-		<option value = "none">Select a tool</option>
-		<option value = "line">Line</option>
-		<option value = "rectangle">Rectangle</option>
-		<option value = "circle">Circle</option>
-		<option value = "freehand">Free Hand</option>
-		<option value = "curve">Curve</option>
-		<option value = "floodFill">Flood fill</option>
-		<option value = "eraser">Eraser</option>
-		<option value = "image">Image Upload</option>
-		<option value = "text">Text</option>
-	</select>
-	
-	<input type = "color" name="fillColor" value="#6e6e6e" id="fillColor" onchange="changeColor()" value="#6e6e6e"/>
-	<button id = "clear_btn">Clear Canvas</button>
-	<!--button id = "render_btn">Render</button-->
-	<button id = "save_btn">Save Image</button>
-	
-	<div id = "chain_box" style="display:none"><input type = "checkbox" name = "chain" value = "chain" id = "chainCheckbox"/>Chain</div><br />
-	<div id = "fill_box" style="display:none"><input type = "checkbox" name = "chain" value = "chain" id = "fillCheckbox"/>Fill</div><br />
-	<div id = "reverse_box" style="display:none"><input type = "checkbox" name = "chain" value = "chain" id = "reverseCheckbox"/>clockwise</div><br />
-	<div id = "imgUpload_box" style="display:none"><input type = "file" name = "imgUpload" id = "imgUpload" accept = "image/*" onchange="loadImage()"></input></div>
-	<div id = "text_inputBox" style="display:none">
-		<input type = "text" id = "text_input" width = "100" placeholder="type your text here ..." maxlength="25" name="textTool"/>
-		<br /> <br />Text Size (10 to 50): <input id="textSize" type="number" name="textSize" min="10" max="50" value="20"/>
-	</div><br />
-		<p id = "help_text">Select a tool to start drawing</p><br /><br />
+		<select id = "tool_list" onchange = "loadTool()">
+			<option value = "none">Select a tool</option>
+			<option value = "line">Line</option>
+			<option value = "rectangle">Rectangle</option>
+			<option value = "circle">Circle</option>
+			<option value = "freehand">Free Hand</option>
+			<option value = "curve">Curve</option>
+			<option value = "floodFill">Flood fill</option>
+			<option value = "eraser">Eraser</option>
+			<option value = "image">Image Upload</option>
+			<option value = "text">Text</option>
+		</select>
+		<button id = "clear_btn">Clear Canvas</button>
+		<!--button id = "render_btn">Render</button-->
+		<button id = "save_btn">Save Image</button>
 		<br />
-		<!--img src="#" id="imageUploaded" height="100px"/-->
+		<div id="vSnapBox" class="tool"><input type = "checkbox" name = "vSnap" checked id = "vSnapCheckBox"/>Snap to Vertices</div>
+		<div id = "fillColorTool" class="tool">Fill Color:
+		<input type = "color" name="fillColor" value="#000000" id="fillColor" onchange="changeColor()"/><br /></div>
+		<div id = "strokeColorTool" class="tool">Stroke Color:
+		<input type = "color" name="strokeColor" value="#000000" id="strokeColor" onchange="changeColor()"/><br /><br /></div>
+		
+		<div id = "chain_box" style="display:none"><input type = "checkbox" name = "chain" value = "chain" id = "chainCheckbox"/>Chain</div><br />
+		<div id = "fill_box" style="display:none"><input type = "checkbox" name = "chain" value = "chain" id = "fillCheckbox"/>Fill</div><br />
+		<div id = "reverse_box" style="display:none"><input type = "checkbox" name = "chain" value = "chain" id = "reverseCheckbox"/>clockwise</div><br />
+		<div id = "imgUpload_box" style="display:none"><input type = "file" name = "imgUpload" id = "imgUpload" accept = "image/*" onchange="loadImage()"></input></div>
+		<div id = "text_inputBox" style="display:none">
+			<input type = "text" id = "text_input" width = "100" placeholder="type your text here ..." maxlength="25" name="textTool"/>
+			<br /> <br />Text Size (10 to 50): <input id="textSize" type="number" name="textSize" min="10" max="50" value="20"/>
+		</div><br />
+			<p id = "help_text">Select a tool to start drawing</p><br /><br />
+			<br />
+			<!--img src="#" id="imageUploaded" height="100px"/-->
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	<script type = "text/JavaScript" src = "funcLibrary.js"></script>
@@ -67,7 +71,7 @@
         */
 
         function pingData(data){
-           connection.emit("send data", data);
+          connection.emit("send data", data);
         }
 
     </script>

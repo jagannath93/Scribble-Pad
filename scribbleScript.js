@@ -3,19 +3,19 @@
 		var canvas2 = document.getElementById("canvas_2");
 		var canvas3 = document.getElementById("canvas_3");
 		var c1 = canvas1.getContext("2d");
-			c1.fillStyle = "#6e6e6e";
-			c1.strokeStyle = "#000000";
+			c1.fillStyle = $('#fillColor').val();
+			c1.strokeStyle =  $('#strokeColor').val();
 			c1.font = "20px Arial";
 		var c2 = canvas2.getContext("2d");
-			c2.strokeStyle = "#575757";
+			c2.strokeStyle = "#000000";
 			c2.fillStyle = "#b8b8b8"
 		var c3 = canvas3.getContext("2d");
 			c3.strokeStyle = 'green';
 			c3.lineWidth = 3;
-				
+		
 		var mouse1X, mouse1Y, mouse2X, mouse2Y,mouse_ix,mouse_iy,mouseX,mouseY;
 		var centerX, centerY, radius, startAngle, stopAngle;
-		var curSnap;//the current snapping point
+		var curSnap = 'none';//the current snapping point
 		var penIsDown = false;
 		var centerSelected = false;
 		var curveStarted = false;
@@ -166,6 +166,7 @@
             rc = c1;
         }
 		if(obj.type == "line"){
+			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
 			rc.moveTo(obj.startPt[0], obj.startPt[1]);
 			rc.lineTo(obj.endPt[0], obj.endPt[1]);
@@ -174,6 +175,7 @@
 			addVertex(obj.startPt[0], obj.startPt[1]);
 			addVertex(obj.endPt[0], obj.endPt[1]);
 		}else if(obj.type == "rectangle"){
+			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
 			rc.strokeRect(obj.vert1[0],obj.vert1[1],obj.vert2[0]-obj.vert1[0],obj.vert2[1]-obj.vert1[1]);
 			if(obj.tobeFilled){
@@ -186,6 +188,7 @@
 			addVertex(obj.vert1[0],obj.vert2[1]);
 			addVertex(obj.vert2[0],obj.vert1[1]);
 		}else if(obj.type == "circle"){
+			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
 			rc.arc(obj.center[0], obj.center[1], obj.rad, obj.Ang1, obj.Ang2);
 			rc.stroke();
@@ -194,6 +197,7 @@
 			addVertex(obj.vert2[0], obj.vert2[1]);
 		}
 		else if(obj.type == "freehand"){
+			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
 			rc.moveTo(obj.points[0][0], obj.points[0][1]);
 			for(var i = 1; i < obj.points.length; i++){
@@ -202,6 +206,7 @@
 			rc.stroke();
 		}
 		else if(obj.type == "curve"){
+			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
 			rc.moveTo(obj.startPt[0], obj.startPt[1]);
 			rc.quadraticCurveTo(obj.intPt[0],obj.intPt[1], obj.endPt[0], obj.endPt[1]);
@@ -216,6 +221,16 @@
 		}
 		else if(obj.type == "erase"){
 			rc.clearRect(obj.vert1[0],obj.vert1[1],obj.vert2[0]-obj.vert1[0],obj.vert2[1]-obj.vert1[1]);
+			//deleting the snap points from the erased area
+			for(var i in snapVertices){
+				if((snapVertices[i][0]>obj.vert1[0] && snapVertices[i][0]<obj.vert2[0])||
+					(snapVertices[i][0]>obj.vert2[0] && snapVertices[i][0]<obj.vert1[0])){
+						if((snapVertices[i][1]>obj.vert1[1] && snapVertices[i][1]<obj.vert2[1])||
+							(snapVertices[i][1]>obj.vert2[1] && snapVertices[i][1]<obj.vert1[1])){
+								snapVertices.splice(i,1);
+							}
+					}
+			}
 		}
 		else if(obj.type == "image"){
 			var img = new Image();
@@ -263,13 +278,16 @@
 				c1.moveTo(mouse1X,mouse1Y);
 				c1.lineTo(mouse2X,mouse2Y);
 				lines.push(new Array(mouse1X,mouse1Y,mouse2X,mouse2Y));
+				
+				c1.strokeStyle =  $('#strokeColor').val();
 				c1.stroke();
 				helpText.text('Pick the starting point');
 				
 				addVertex(mouse1X,mouse1Y);
 				addVertex(mouse2X,mouse2Y);
 				
-				var lineObj = {type : "line", startPt : new Array(mouse1X,mouse1Y), endPt : new Array(mouse2X,mouse2Y)};
+				var lineObj = {type : "line", startPt : new Array(mouse1X,mouse1Y), endPt : new Array(mouse2X,mouse2Y),
+								strokeColor: c1.strokeStyle};
 				pingData(lineObj);
 			}
 			}
@@ -301,12 +319,15 @@
 				c1.moveTo(mouse1X,mouse1Y);
 				c1.lineTo(mouse2X,mouse2Y);
 				lines.push(new Array(mouse1X,mouse1Y,mouse2X,mouse2Y));
+				
+				c1.strokeStyle =  $('#strokeColor').val();
 				c1.stroke();
 				
 				addVertex(mouse1X,mouse1Y);
 				addVertex(mouse2X,mouse2Y);
 				
-				var lineObj = {type : "line", startPt : new Array(mouse1X,mouse1Y), endPt : new Array(mouse2X,mouse2Y)};
+				var lineObj = {type : "line", startPt : new Array(mouse1X,mouse1Y), endPt : new Array(mouse2X,mouse2Y),
+								strokeColor: c1.strokeStyle};
 				mouse1X = mouse2X; mouse1Y = mouse2Y;
 				
 				pingData(lineObj);
@@ -338,9 +359,12 @@
 				}
 				
 				penIsDown = false;
+				
+				c1.strokeStyle =  $('#strokeColor').val();
 				c1.beginPath();
 				c1.strokeRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 				if(fillCheckbox.checked){
+					c1.fillStyle = $('#fillColor').val();
 					c1.fillRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 				}
 				rectangles.push(new Array(mouse1X,mouse1Y,mouse2X,mouse2Y,fillCheckbox.checked));
@@ -354,7 +378,7 @@
 				//pushing the corner coordinates to the array - last element is a bool whether the rectangle should be filled or not.
 				
 				var recObj = {type: "rectangle", vert1: new Array(mouse1X,mouse1Y), vert2: new Array(mouse2X,mouse2Y), 
-								tobeFilled: fillCheckbox.checked, fillColor: c1.fillStyle};
+								tobeFilled: fillCheckbox.checked, fillColor: c1.fillStyle, strokeColor: c1.strokeStyle};
 				pingData(recObj);
 			}
 			
@@ -410,19 +434,21 @@
 					
 					var cirObj;//the object to be sent to the server representing this circle
 					var othPt = vSum([centerX,centerY],vPrd(unitV(vDiff([mouse2X,mouse2Y],[centerX,centerY])),radius));
+					
+					c1.strokeStyle =  $('#strokeColor').val();
 					c1.beginPath();
 					if(reverseCheckbox.checked){
 						c1.arc(centerX,centerY,radius,startAngle,stopAngle);
 						circles.push(new Array(centerX,centerY,radius,startAngle,stopAngle));
 						
 						cirObj = {type: "circle", center: new Array(centerX, centerY), rad: radius, Ang1: startAngle, 
-										Ang2: stopAngle, vert1: new Array(mouse1X, mouse1Y), vert2: othPt};
+										Ang2: stopAngle, vert1: new Array(mouse1X, mouse1Y), vert2: othPt, strokeColor: c1.strokeStyle};
 					}else{
 						c1.arc(centerX,centerY,radius,stopAngle,startAngle);//console.log('here');
 						circles.push(new Array(centerX,centerY,radius,stopAngle,startAngle));
 						
 						cirObj = {type: "circle", center: new Array(centerX, centerY), rad: radius, Ang1: stopAngle, 
-										Ang2: startAngle, vert1: new Array(mouse1X, mouse1Y), vert2: othPt};
+										Ang2: startAngle, vert1: new Array(mouse1X, mouse1Y), vert2: othPt, strokeColor: c1.strokeStyle};
 					}
 					
 					//addVertex(centerX, centerY);//decide later whether to add the center or not
@@ -438,6 +464,7 @@
 		else if(currentTool == "freehand"){
 			if(!penIsDown){
 				penIsDown = true;
+				c1.strokeStyle =  $('#strokeColor').val();
 				freeHand = [];
 				mouse1X = e.pageX - this.offsetLeft;
 				mouse1Y = e.pageY - this.offsetTop;
@@ -451,7 +478,7 @@
 				//freeHand[freeHand.length-1][2] = false;
 				penIsDown = false;
 				
-				var frObj = {type: "freehand", points: freeHand}
+				var frObj = {type: "freehand", points: freeHand, strokeColor: c1.strokeStyle}
 				
 				helpText.text('Click to start drawing free hand');
 				pingData(frObj);
@@ -490,6 +517,7 @@
 						mouse2Y = curSnap[1];
 					}
 					
+					c1.strokeStyle =  $('#strokeColor').val();
 					c1.beginPath();
 					c1.moveTo(mouse1X,mouse1Y);
 					c1.quadraticCurveTo(mouse_ix,mouse_iy,(mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2);
@@ -500,7 +528,7 @@
 					addVertex((mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2);
 					
 					var curObj = {type: "curve", startPt: new Array(mouse1X, mouse1Y), intPt: new Array(mouse_ix,mouse_iy),
-									endPt: new Array((mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2)};
+									endPt: new Array((mouse_ix+mouse2X)/2,(mouse_iy+mouse2Y)/2), strokeColor: c1.strokeStyle};
 					//console.log(mouse_ix,mouse_iy);
 					//console.log(mouse1X+" "+mouse1Y+" "+mouse_ix+" "+mouse_iy+" "+(mouse_ix+mouse2X)/2+" "+(mouse_iy+mouse2Y)/2);
 					mouse1X = (mouse_ix+mouse2X)/2;mouse1Y = (mouse_iy+mouse2Y)/2;
@@ -600,6 +628,7 @@
 				mouse1X = e.pageX - this.offsetLeft;
 				mouse1Y = e.pageY - this.offsetTop;
 				
+				c1.fillStyle = $('#fillColor').val();
 				c1.font = txtSize+"px Arial";
 				c1.fillText(txt,mouse1X,mouse1Y);
 				
@@ -677,6 +706,8 @@
 				c1.lineTo(mouse2X,mouse2Y);
 				c1.stroke();
 				freeHand.push(new Array(mouse2X,mouse2Y));
+			}else{
+				clearTempCanvases();
 			}
 		}
 		else if(currentTool == "curve"){
@@ -737,29 +768,31 @@
 			}
 		}
 		else if(currentTool == "text"){
+			clearTempCanvases()
 			mouse1X = e.pageX - this.offsetLeft;
 			mouse1Y = e.pageY - this.offsetTop;
 			
 			var txt = $('#text_input').val();
 			var txtSize = $('#textSize').val();
 			if(txt != ""){
-				clearTempCanvases()
 				c2.font = txtSize+"px Arial";
 				c2.fillText(txt, mouse1X, mouse1Y);
 			}
 		}
 		
-		if(currentTool != 'floodFill' && currentTool != 'eraser'){
-			//clearTempCanvases()
-			mouseX = e.pageX - this.offsetLeft;
-			mouseY = e.pageY - this.offsetTop;
-			//updating the nearest snapping point if any
-			curSnap = isSnappingTo([mouseX, mouseY], true);
+		if(currentTool != 'floodFill' && currentTool != 'eraser' && currentTool != 'text' && currentTool != 'freehand'){
+			if(vSnapCheckBox.checked){
+				//clearTempCanvases()
+				mouseX = e.pageX - this.offsetLeft;
+				mouseY = e.pageY - this.offsetTop;
+				//updating the nearest snapping point if any
+				curSnap = isSnappingTo([mouseX, mouseY], true);
+			}
 		}
 	});
 		
 	window.addEventListener("keydown",press_btn,false);
-	
+
 	function press_btn(e){
 		if(e.keyCode == 27){
 			if(currentTool == "freehand"){
@@ -768,6 +801,7 @@
 			penIsDown = false;
 			centerSelected = false;
 			curveStarted = false;
+			$('#text_input').val('');
 			clearTempCanvases()
 			loadTool();
 		}
