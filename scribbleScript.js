@@ -48,14 +48,7 @@
 		
 		var snapVertices = new Array();
 		var gridSize = 100;
-		var gridPoints = new Array();
-		//filling up the gridPoints array with grid points
-		for(var x = 0; x <= gridCanvas.width; x += gridSize){
-			for(var y = 0; y <= gridCanvas.height; y += gridSize){
-				gridPoints.push(new Array(x,y));
-				//markPt(new Array(x,y), gc);
-			}
-		}
+		var gridPoints = new Array();//gridPoints to snap to
 		
 		var lines = new Array();
 		var rectangles = new Array();
@@ -187,7 +180,7 @@
 		imageData.data[pix+3] = 255;
 	}
 	
-	function toggleGrid(){
+	function toggleGrid(){//toggles the grid on and off
 		if(gridCheckBox.checked){
 			//drawing vertical lines
 			for(var x=gridSize; x<gridCanvas.width; x+=gridSize){
@@ -203,8 +196,16 @@
 				gc.lineTo(gridCanvas.width, y);
 				gc.stroke();
 			}
+			//filling up the gridPoints array with grid points
+			for(var x = 0; x <= gridCanvas.width; x += gridSize){
+				for(var y = 0; y <= gridCanvas.height; y += gridSize){
+					gridPoints.push(new Array(x,y));
+					//markPt(new Array(x,y), gc);
+				}
+			}
 		}else{
 			gc.clearRect(0,0,gridCanvas.width, gridCanvas.height);
+			gridPoints = [];
 		}
 	}
 	
@@ -1041,3 +1042,15 @@
 		//console.log(dataURL);
 	}
 	$('#save_btn').click(function(){saveImage();});
+	
+	function loadCurrentState(currentState){//the parameter objectis the current received from the server
+		var snapShot = new Image();
+		snapShot.src = currentState.snapShot;
+		c1.drawImage(snapShot,0,0,canvas1.width,canvas1.height);
+		snapVertices = currentState.snapPoints;
+	}
+	
+	function sendCurrentState(){//sends the current state of the canvas packed into an object
+		var currentState = {snapShot: canvas1.toDataURL(), snapPoints: snapVertices};
+		//add code here send the above object to the server
+	}
