@@ -1050,7 +1050,7 @@
 		snapVertices = currentState.snapPoints;
 	}
 	
-	function sendCurrentState(){//sends the current state of the canvas packed into an object
-		var currentState = {snapShot: canvas1.toDataURL(), snapPoints: snapVertices};
+	function getCurrentState(){//sends the current state of the canvas packed into an object
+		return {snapShot: canvas1.toDataURL(), snapPoints: snapVertices};
 		//add code here send the above object to the server
 	}

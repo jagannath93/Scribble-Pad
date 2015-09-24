@@ -60,6 +60,9 @@
     <script>
         var connection = io.connect(window.location.host);
 
+        // get the initial state if available
+        connection.emit("get_recent_state");
+
         // trigger on new flat data update
         connection.on('data update', function (data) {
             console.log("flat data received");
@@ -74,6 +77,23 @@
             renderObject(data);
         });
         */
+
+        // trigger on new updated state data
+        connection.on('send_recent_state', function (res) {
+            console.log("recent state received");
+            var data_payload = {
+                'req_user': res,
+                'data': getCurrentState()
+            }
+            connection.emit("recent_state", data_payload);
+        });
+
+        // trigger on initial state render request
+        connection.on('recent_state', function (data) {
+            console.log("recent state received");
+            loadCurrentState(data);
+        });
+
 
         function pingData(data){
           connection.emit("send data", data);
