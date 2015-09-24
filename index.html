@@ -9,6 +9,7 @@
 <body>
 	
 	<canvas id = "canvas_3" height = "500px" width = "1000px" class = "scribblePad"></canvas>
+	<canvas id = "canvas_grid" height = "500px" width = "1000px" class = "scribblePad"></canvas>
 	<canvas id = "canvas_1" height = "500px" width = "1000px" class = "scribblePad"></canvas>
 	<canvas id = "canvas_2" height = "500px" width = "1000px" class = "scribblePad"></canvas>
 	<div id = "canvas_screen" class = "scribblePad"></div>
@@ -31,6 +32,7 @@
 		<button id = "save_btn">Save Image</button>
 		<br />
 		<div id="vSnapBox" class="tool"><input type = "checkbox" name = "vSnap" checked id = "vSnapCheckBox"/>Snap to Vertices</div>
+		<div id="gridToggleBox" class="tool"><input type = "checkbox" name = "gridToggle" id = "gridCheckBox" onchange="toggleGrid()"/>Show Grid</div>
 		<div id = "fillColorTool" class="tool">Fill Color:
 		<input type = "color" name="fillColor" value="#000000" id="fillColor" onchange="updatePen()"/><br /></div>
 		<div id = "strokeColorTool" class="tool">Stroke Color:

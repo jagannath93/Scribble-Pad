@@ -14,7 +14,7 @@ body{
 			position : absolute;
 			top : 10px;
 			left : 10px;
-			z-index : 500;
+			z-index : 600;
 		}
 		
 		#canvas_2, #canvas_3 {
@@ -29,6 +29,20 @@ body{
 			left : 10px;
 			z-index : 500;
 			opacity : 0.6;
+		}
+		
+		#canvas_grid {
+			border : solid red 1px;	
+			cursor : crosshair;
+			-moz-user-select: none; 
+			-khtml-user-select: none; 
+			-webkit-user-select: none; 
+			-o-user-select: none; 
+			position : absolute;
+			top : 10px;
+			left : 10px;
+			z-index : 400;
+			opacity : 0.15;
 		}
 		
 		#recCanvas {

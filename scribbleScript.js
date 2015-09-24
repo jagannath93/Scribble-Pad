@@ -2,6 +2,7 @@
 		var canvas1 = document.getElementById("canvas_1");
 		var canvas2 = document.getElementById("canvas_2");
 		var canvas3 = document.getElementById("canvas_3");
+		var gridCanvas = document.getElementById("canvas_grid");
 		var c1 = canvas1.getContext("2d");
 			c1.fillStyle = $('#fillColor').val();
 			c1.strokeStyle =  $('#strokeColor').val();
@@ -14,6 +15,9 @@
 		var c3 = canvas3.getContext("2d");
 			c3.strokeStyle = 'green';
 			c3.lineWidth = 3;
+		var gc = gridCanvas.getContext("2d");
+			gc.strokeStyle = '#000000';
+			gc.lineWidth = 1;
 		
 		var mouse1X, mouse1Y, mouse2X, mouse2Y,mouse_ix,mouse_iy,mouseX,mouseY;
 		var centerX, centerY, radius, startAngle, stopAngle;
@@ -43,6 +47,15 @@
 		//variables for imageUpload tool</>
 		
 		var snapVertices = new Array();
+		var gridSize = 100;
+		var gridPoints = new Array();
+		//filling up the gridPoints array with grid points
+		for(var x = 0; x <= gridCanvas.width; x += gridSize){
+			for(var y = 0; y <= gridCanvas.height; y += gridSize){
+				gridPoints.push(new Array(x,y));
+				//markPt(new Array(x,y), gc);
+			}
+		}
 		
 		var lines = new Array();
 		var rectangles = new Array();
@@ -52,14 +65,25 @@
 		var eraseArray = new Array();
 		
 	function isSnappingTo(pos, markBool){//returns if the position pos is within the snapping distance of another vertex
+		//markBool parameters determines if the sanpping is shown on the screen or not.
 		var snapPts = new Array();//the points which it is actually snapping to
 		
-		for(var i=0; i<snapVertices.length; i++){
+		for(var i=0; i<snapVertices.length; i++){//checking if snapping to vertices
 			var distance = dist(snapVertices[i][0], snapVertices[i][1], pos[0], pos[1]);
 			if(distance < snappingDistance){
 				snapPts.push(new Array(snapVertices[i][0], snapVertices[i][1], distance));
 			}
 		}
+		
+		if(gridCheckBox.checked){
+			for(var i=0; i<gridPoints.length; i++){//checking if snapping to gridPoints
+				var distance = dist(gridPoints[i][0], gridPoints[i][1], pos[0], pos[1]);
+				if(distance < snappingDistance){
+					snapPts.push(new Array(gridPoints[i][0], gridPoints[i][1], distance));
+				}
+			}
+		}
+		
 		sort2D(snapPts, 2);
 		var snapPt;
 		if(snapPts.length > 0){
@@ -161,6 +185,27 @@
 		imageData.data[pix+1] = hexToRgb(c1.fillStyle).g;
 		imageData.data[pix+2] = hexToRgb(c1.fillStyle).b;
 		imageData.data[pix+3] = 255;
+	}
+	
+	function toggleGrid(){
+		if(gridCheckBox.checked){
+			//drawing vertical lines
+			for(var x=gridSize; x<gridCanvas.width; x+=gridSize){
+				gc.beginPath();
+				gc.moveTo(x,0);
+				gc.lineTo(x,gridCanvas.height);
+				gc.stroke();
+			}
+			//drawing horizontal lines
+			for(var y=gridSize; y<gridCanvas.height; y+=gridSize){
+				gc.beginPath();
+				gc.moveTo(0,y);
+				gc.lineTo(gridCanvas.width, y);
+				gc.stroke();
+			}
+		}else{
+			gc.clearRect(0,0,gridCanvas.width, gridCanvas.height);
+		}
 	}
 	
 	function renderObject(obj, rc){
@@ -809,7 +854,6 @@
 	});
 		
 	window.addEventListener("keydown",press_btn,false);
-
 	function press_btn(e){
 		if(e.keyCode == 27){
 			if(currentTool == "freehand"){
