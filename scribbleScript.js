@@ -101,7 +101,7 @@
 		//markPt(pt,c1);
 	}
 	
-	function cleanArray(ar){
+	function cleanArray(ar){//cleans up a 2d array by deleting any duplicated elements
 		for (var i = 0; i < ar.length; i++){
 			var checkPt = ar.shift();
 			if(!arr2dContains(ar, checkPt)){ar.push(checkPt);}
@@ -274,12 +274,13 @@
 		else if(obj.type == "erase"){
 			rc.clearRect(obj.vert1[0],obj.vert1[1],obj.vert2[0]-obj.vert1[0],obj.vert2[1]-obj.vert1[1]);
 			//deleting the snap points from the erased area
-			for(var i in snapVertices){
+			for(var i=0; i<snapVertices.length; i++){
 				if((snapVertices[i][0]>obj.vert1[0] && snapVertices[i][0]<obj.vert2[0])||
 					(snapVertices[i][0]>obj.vert2[0] && snapVertices[i][0]<obj.vert1[0])){
 						if((snapVertices[i][1]>obj.vert1[1] && snapVertices[i][1]<obj.vert2[1])||
 							(snapVertices[i][1]>obj.vert2[1] && snapVertices[i][1]<obj.vert1[1])){
 								snapVertices.splice(i,1);
+								i--;
 							}
 					}
 			}
@@ -624,13 +625,14 @@
 				penIsDown = false;
 				c1.beginPath();
 				c1.clearRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
-				
-				for(var i in snapVertices){
+				//deleting snapVertives if any
+				for(var i=0; i<snapVertices.length; i++){
 					if((snapVertices[i][0]>mouse1X && snapVertices[i][0]<mouse2X)||
 						(snapVertices[i][0]>mouse2X && snapVertices[i][0]<mouse1X)){
 							if((snapVertices[i][1]>mouse1Y && snapVertices[i][1]<mouse2Y)||
 								(snapVertices[i][1]>mouse2Y && snapVertices[i][1]<mouse1Y)){
 									snapVertices.splice(i,1);
+									i--;
 								}
 						}
 				}
