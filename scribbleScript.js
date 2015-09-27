@@ -350,8 +350,8 @@
 			}
 			rc.lineTo(obj.vertAr[0][0], obj.vertAr[0][1]);
 			rc.closePath();
-			rc.stroke();
 			if(obj.toBeFilled){rc.fill();}
+			rc.stroke();
 			
 			for(var x = 0; x < obj.vertAr.length; x++){
 				addVertex(obj.vertAr[x][0], obj.vertAr[x][1]);
@@ -475,11 +475,10 @@
 				
 				updatePen();
 				c1.beginPath();
-				c1.strokeRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 				if(fillCheckbox.checked){
 					c1.fillRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 				}
-				rectangles.push(new Array(mouse1X,mouse1Y,mouse2X,mouse2Y,fillCheckbox.checked));
+				c1.strokeRect(mouse1X,mouse1Y,mouse2X-mouse1X,mouse2Y-mouse1Y);
 				
 				addVertex(mouse1X,mouse1Y);
 				addVertex(mouse2X,mouse2Y);
@@ -537,8 +536,8 @@
 				c1.lineTo(polygonVert[0][0], polygonVert[0][1]);
 				c1.closePath();
 				updatePen();
-				c1.stroke();
 				if(fillCheckbox.checked){c1.fill();}
+				c1.stroke();
 				
 				for(var x = 0; x < polygonVert.length; x++){
 					addVertex(polygonVert[x][0], polygonVert[x][1]);
@@ -685,8 +684,8 @@
 					c1.restore();
 					c2.restore();c2.restore();//have to restore twice
 					updatePen();
-					c1.stroke();
 					if(fillCheckbox.checked){c1.fill();}
+					c1.stroke();
                     c1.restore();
 					//adding vertices for snapping
 					var ellipseCenter = [(mouse1X+mouse_ix)/2, (mouse1Y+mouse_iy)/2];
@@ -1144,6 +1143,7 @@
 	$('#clear_btn').click(function(){
 		clearTempCanvases()
 		c1.clearRect(0,0,canvas1.width,canvas1.height);
+		snapVertices = [];
 		penIsDown = false;
 	});
 	
