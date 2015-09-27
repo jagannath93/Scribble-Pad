@@ -544,7 +544,7 @@
 					addVertex(polygonVert[x][0], polygonVert[x][1]);
 				}
 				
-				var polygonObj = {type: 'polygon', vertAr: polygonVert, strokeColor: c1.strokeStyle, fillColor: c1.fillStyle, toBeFilled: fillCheckBox.checked, strokeWidth: c1.lineWidth};
+				var polygonObj = {type: 'polygon', vertAr: polygonVert, strokeColor: c1.strokeStyle, fillColor: c1.fillStyle, toBeFilled: fillCheckbox.checked, strokeWidth: c1.lineWidth};
 				penIsDown = false;
 				helpText.text('Pick the center of the polygon');
 				clearTempCanvases();
