@@ -342,6 +342,7 @@
 		else if(obj.type = 'polygon'){
 			rc.strokeStyle = obj.strokeColor;
 			rc.fillStyle = obj.fillColor;
+            rc.lineWidth = obj.strokeWidth;
 			rc.beginPath();
 			rc.moveTo(obj.vertAr[0][0], obj.vertAr[0][1]);
 			for(var x = 1; x < obj.vertAr.length; x++){
@@ -543,7 +544,7 @@
 					addVertex(polygonVert[x][0], polygonVert[x][1]);
 				}
 				
-				var polygonObj = {type: 'polygon', vertAr: polygonVert, strokeColor: c1.strokeStyle, fillColor: c1.fillStyle, toBeFilled: fillCheckBox.checked};
+				var polygonObj = {type: 'polygon', vertAr: polygonVert, strokeColor: c1.strokeStyle, fillColor: c1.fillStyle, toBeFilled: fillCheckBox.checked, strokeWidth: c1.lineWidth};
 				penIsDown = false;
 				helpText.text('Pick the center of the polygon');
 				clearTempCanvases();
