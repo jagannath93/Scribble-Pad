@@ -15,19 +15,18 @@
         <div id = "canvas_screen" class = "scribblePad"></div>
         <br />
         <div id = "tool_box">
-            <select id = "tool_list" onchange = "loadTool()">
-                <option value = "none">Select a tool</option>
-                <option value = "line">Line</option>
-                <option value = "rectangle">Rectangle</option>
-                <option value = "circle">Circle</option>
-                <option value = "ellipse">Ellipse</option>
-                <option value = "freehand">Free Hand</option>
-                <option value = "curve">Curve</option>
-                <option value = "floodFill">Flood fill</option>
-                <option value = "eraser">Eraser</option>
-                <option value = "image">Image Upload</option>
-                <option value = "text">Text</option>
-            </select>
+            <div id = "tool_list">
+				<input type="radio" name="tool" value="line" onchange="loadTool()" />Line<br />
+				<input type="radio" name="tool" value="rectangle" onchange="loadTool()" />Rectangle<br />
+                <input type="radio" name="tool" value="circle" onchange="loadTool()" />Circle<br />
+                <input type="radio" name="tool" value="ellipse" onchange="loadTool()" />Ellipse<br />
+                <input type="radio" name="tool" value="freehand" onchange="loadTool()" />Free Hand<br />
+                <input type="radio" name="tool" value="curve" onchange="loadTool()" />Curve<br />
+                <input type="radio" name="tool" value="floodFill" onchange="loadTool()" />Flood fill<br />
+                <input type="radio" name="tool" value="eraser" onchange="loadTool()" />Eraser<br />
+                <input type="radio" name="tool" value="image" onchange="loadTool()" />Image<br />
+                <input type="radio" name="tool" value="text" onchange="loadTool()" />Text<br />
+            </div>
             <button id = "clear_btn">Clear Canvas</button>
             <!--button id = "render_btn">Render</button-->
             <button id = "save_btn">Save Image</button>

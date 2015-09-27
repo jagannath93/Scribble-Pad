@@ -561,7 +561,7 @@
 					}
 					
 					curveStarted = true;
-					helpText.text('Select the Ending pooint of the axis');
+					helpText.text('Select the Ending point of the axis');
 				}else{
 					mouse_ix = e.pageX - this.offsetLeft;
 					mouse_iy = e.pageY - this.offsetTop;
@@ -583,6 +583,7 @@
 					c2.save();
 					//c1.strokeRect(0,0,30,20);
 					penIsDown = true;//console.log('penIsDown = '+penIsDown);
+					helpText.text('Draw the Ellipse');
 				}
 			}else{
 				if(curveStarted){
@@ -619,7 +620,7 @@
 									strokeWidth: c1.lineWidth,fillColor: c1.fillStyle};
 					penIsDown = false;
 					curveStarted = false;
-					
+					helpText.text('Select the starting point of the first axis');
 					pingData(ellObj);
 				}
 			}
@@ -1075,7 +1076,7 @@
 	$('#render_btn').click(function(){renderShapes()});
 	
 	function loadTool(){
-		currentTool = toolList.options[toolList.selectedIndex].value;
+		currentTool = $('input[name=tool]:checked').val();
 		if(currentTool=="line"){
 			$('#chain_box').show();
 			$('#fill_box').hide();
