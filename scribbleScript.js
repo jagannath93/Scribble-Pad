@@ -46,6 +46,13 @@
 		var imageIsLoaded = false;
 		//variables for imageUpload tool</>
 		
+		//variables for ellipse tool<>
+		var axisAngle;
+		var axisLength;
+		var scaleFactor = 1;
+		//var testObj;
+		//variables for ellipse tool</>
+		
 		var snapVertices = new Array();
 		var gridSize = 100;
 		var gridPoints = new Array();//gridPoints to snap to
@@ -296,11 +303,38 @@
 			rc.fillStyle = obj.txtColor;
 			rc.fillText(obj.value, obj.basePt[0], obj.basePt[1]);
 		}
+		else if(obj.type == 'ellipse'){
+			rc.fillStyle = obj.fillColor;
+			rc.strokeStyle = obj.strokeColor;
+			rc.lineWidth = obj.strokeWidth;
+			rc.save();
+			
+			axisAngle = lineAngle(obj.vert1[0],obj.vert1[1],obj.vert2[0],obj.vert2[1]);//console.log(axisAngle);
+			axisLength = dist(obj.vert1[0],obj.vert1[1],obj.vert2[0],obj.vert2[1]);
+			var minAxis = lineDist([obj.vert1[0],obj.vert1[1]],[obj.vert2[0],obj.vert2[1]],[mouse2X,mouse2Y]);
+			scaleFactor = 2*mod(minAxis)/axisLength;
+			
+			rc.translate(obj.vert1[0],obj.vert1[1]);
+			rc.rotate(axisAngle);
+			rc.scale(1,scaleFactor);
+			rc.beginPath();
+			rc.arc(axisLength/2,0,axisLength/2,0,2*Math.PI);
+			rc.restore();
+			rc.stroke();
+			if(obj.tobeFilled){rc.fill();}
+			//adding vertices for snapping
+			var ellipseCenter = [(obj.vert1[0]+obj.vert2[0])/2, (obj.vert1[1]+obj.vert2[1])/2];
+			var end1 = vSum(ellipseCenter,minAxis);
+			var end2 = vDiff(ellipseCenter,minAxis);
+			addVertex(obj.vert1[0],obj.vert1[1]);
+			addVertex(obj.vert2[0],obj.vert2[1]);
+			addVertex(obj.vert3[0],obj.vert3[1]);
+			addVertex(obj.vert4[0],obj.vert4[1]);
+		}
 	}
 	
 	//click events for all kinds of tools
 	$('.scribblePad').click(function(e){
-	//click function code for the line tool
 		if(currentTool == "line"){
 		//without the chain option checked
 			if(!chainCheckbox.checked){
@@ -388,7 +422,6 @@
 			}
 			}
 		}
-		//code for rectangle tool
 		else if(currentTool == "rectangle"){
 			if(!penIsDown){
 				mouse1X = e.pageX - this.offsetLeft;
@@ -437,7 +470,6 @@
 			}
 			
 		}
-		//code for circle tool
 		else if(currentTool == "circle"){
 			if(!centerSelected){
 				centerX = e.pageX - this.offsetLeft;
@@ -514,6 +546,81 @@
 					c1.stroke();
 					helpText.text('Select the centre of the arc/circle');
 					pingData(cirObj);
+				}
+			}
+		}
+		else if(currentTool == "ellipse"){
+			if(!penIsDown){
+				if(!curveStarted){
+					mouse1X = e.pageX - this.offsetLeft;
+					mouse1Y = e.pageY - this.offsetTop;
+					
+					if(curSnap != 'none'){
+						mouse1X = curSnap[0];
+						mouse1Y = curSnap[1];
+					}
+					
+					curveStarted = true;
+					helpText.text('Select the Ending pooint of the axis');
+				}else{
+					mouse_ix = e.pageX - this.offsetLeft;
+					mouse_iy = e.pageY - this.offsetTop;
+					
+					if(curSnap != 'none'){
+						mouse_ix = curSnap[0];
+						mouse_iy = curSnap[1];
+					}
+					//console.log(mouse1X,mouse1Y,mouse_ix,mouse_iy);
+					axisAngle = lineAngle(mouse1X,mouse1Y,mouse_ix,mouse_iy);//console.log(axisAngle);
+					axisLength = dist(mouse1X,mouse1Y,mouse_ix,mouse_iy);
+					clearTempCanvases();
+					c1.save();
+					c2.save();
+					c1.translate(mouse1X,mouse1Y);
+					c2.translate(mouse1X,mouse1Y);
+					c1.rotate(axisAngle);
+					c2.rotate(axisAngle);
+					c2.save();
+					//c1.strokeRect(0,0,30,20);
+					penIsDown = true;//console.log('penIsDown = '+penIsDown);
+				}
+			}else{
+				if(curveStarted){
+					mouse2X = e.pageX - this.offsetLeft;
+					mouse2Y = e.pageY - this.offsetTop;
+					
+					if(curSnap != 'none'){
+						mouse2X = curSnap[0];
+						mouse2Y = curSnap[1];
+					}
+					
+					var minAxis = lineDist([mouse1X,mouse1Y],[mouse_ix,mouse_iy],[mouse2X,mouse2Y]);
+					scaleFactor = 2*mod(minAxis)/axisLength;
+					c1.scale(1,scaleFactor);
+					c1.beginPath();
+					c1.arc(axisLength/2,0,axisLength/2,0,2*Math.PI);
+					c2.clearRect(-5,-((axisLength/2)+5),axisLength+10,axisLength+10);
+					c1.restore();
+					c2.restore();c2.restore();//have to restore twice
+					updatePen();
+					c1.stroke();
+					if(fillCheckbox.checked){c1.fill();}
+					//adding vertices for snapping
+					var ellipseCenter = [(mouse1X+mouse_ix)/2, (mouse1Y+mouse_iy)/2];
+					var end1 = vSum(ellipseCenter,minAxis);
+					var end2 = vDiff(ellipseCenter,minAxis);
+					addVertex(mouse1X,mouse1Y);
+					addVertex(mouse_ix,mouse_iy);
+					addVertex(end1[0],end1[1]);
+					addVertex(end2[0],end2[1]);
+					//sending the data over to the server
+					var ellObj = {type: 'ellipse', vert1: [mouse1X,mouse1Y], vert2: [mouse_ix,mouse_iy], endPt: [mouse2X,mouse2Y],
+									vert3: end1, vert4: end2, tobeFilled: fillCheckbox.checked, strokeColor:c1.strokeStyle,
+									strokeWidth: c1.lineWidth,fillColor: c1.fillStyle};
+					penIsDown = false;
+					curveStarted = false;
+					
+					pingData(ellObj);
 				}
 			}
 		}
@@ -760,6 +867,43 @@
 				}
 			}
 		}
+		else if(currentTool == "ellipse"){
+			clearTempCanvases();
+			if(!penIsDown){
+				if(curveStarted){
+					//clearTempCanvases();
+					mouse_ix = e.pageX - this.offsetLeft;
+					mouse_iy = e.pageY - this.offsetTop;
+					
+					c2.beginPath();
+					c2.moveTo(mouse1X,mouse1Y);
+					c2.lineTo(mouse_ix,mouse_iy);
+					c2.stroke();
+				}
+			}else{
+				if(curveStarted){
+					c2.clearRect(-5,-((axisLength/2)+5),axisLength+10,axisLength+10);
+					//c2.strokeRectRect(-5,-((axisLength/2)+5),axisLength+10,axisLength+10);
+				
+					c2.beginPath();
+					c2.moveTo(0,0);
+					c2.lineTo(axisLength,0);
+					c2.stroke();
+					
+					mouse2X = e.pageX - this.offsetLeft;
+					mouse2Y = e.pageY - this.offsetTop;
+					
+					c2.restore();
+					c2.save();
+					scaleFactor = 2*mod(lineDist([mouse1X,mouse1Y],[mouse_ix,mouse_iy],[mouse2X,mouse2Y]))/axisLength;
+					
+					c2.scale(1, scaleFactor);
+					c2.beginPath();
+					c2.arc(axisLength/2,0,axisLength/2,0,2*Math.PI);
+					c2.stroke();
+				}
+			}
+		}
 		else if(currentTool == "freehand"){
 			if(penIsDown){
 				mouse1X = mouse2X;
@@ -866,11 +1010,14 @@
 			penIsDown = false;
 			centerSelected = false;
 			curveStarted = false;
+			if(currentTool == 'ellipse'){
+				c1.restore();
+				c2.restore();c2.restore();//have to restore two times
+			}
 			$('#text_input').val('');
 			clearTempCanvases()
 			loadTool();
 		}
-		
 		cleanArray(snapVertices);
 	}
 		
@@ -930,76 +1077,84 @@
 	function loadTool(){
 		currentTool = toolList.options[toolList.selectedIndex].value;
 		if(currentTool=="line"){
-		$('#chain_box').show();
-		$('#fill_box').hide();
-		$('#reverse_box').hide();
-		$('#text_inputBox').hide();
-		$('#imgUploadBox').hide();
-		helpText.text('Pick starting point of the line');
+			$('#chain_box').show();
+			$('#fill_box').hide();
+			$('#reverse_box').hide();
+			$('#text_inputBox').hide();
+			$('#imgUploadBox').hide();
+			helpText.text('Pick starting point of the line');
 		}
 		else if(currentTool=="rectangle"){
-		$('#chain_box').hide();
-		$('#imgUploadBox').hide();
-		$('#fill_box').show();
-		$('#reverse_box').hide();
-		$('#text_inputBox').hide();
-		helpText.text('Pick first corner of the rectangle');
+			$('#chain_box').hide();
+			$('#imgUploadBox').hide();
+			$('#fill_box').show();
+			$('#reverse_box').hide();
+			$('#text_inputBox').hide();
+			helpText.text('Pick first corner of the rectangle');
 		}
 		else if(currentTool=="circle"){
-		$('#chain_box').hide();
-		$('#fill_box').hide();
-		$('#imgUploadBox').hide();
-		$('#reverse_box').show();
-		$('#text_inputBox').hide();
-		helpText.text('Select the centre of the arc/circle');
+			$('#chain_box').hide();
+			$('#fill_box').hide();
+			$('#imgUploadBox').hide();
+			$('#reverse_box').show();
+			$('#text_inputBox').hide();
+			helpText.text('Select the centre of the arc/circle');
 		}
 		else if(currentTool == "freehand"){
-		$('#chain_box').hide();
-		$('#fill_box').hide();
-		$('#reverse_box').hide();
-		$('#imgUploadBox').hide();
-		$('#text_inputBox').hide();
-		helpText.text('Click to start drawing free hand');
+			$('#chain_box').hide();
+			$('#fill_box').hide();
+			$('#reverse_box').hide();
+			$('#imgUploadBox').hide();
+			$('#text_inputBox').hide();
+			helpText.text('Click to start drawing free hand');
 		}
 		else if(currentTool == "curve"){
-		$('#chain_box').hide();
-		$('#fill_box').hide();
-		$('#reverse_box').hide();
-		$('#imgUploadBox').hide();
-		$('#text_inputBox').hide();
-		helpText.text('Pick the starting point of the curve');
+			$('#chain_box').hide();
+			$('#fill_box').hide();
+			$('#reverse_box').hide();
+			$('#imgUploadBox').hide();
+			$('#text_inputBox').hide();
+			helpText.text('Pick the starting point of the curve');
 		}
 		else if(currentTool == "floodFill"){
-		$('#chain_box').hide();
-		$('#fill_box').hide();
-		$('#reverse_box').hide();
-		$('#imgUploadBox').hide();
-		$('#text_inputBox').hide();
-		helpText.text('Pick an Internal point to fill');
+			$('#chain_box').hide();
+			$('#fill_box').hide();
+			$('#reverse_box').hide();
+			$('#imgUploadBox').hide();
+			$('#text_inputBox').hide();
+			helpText.text('Pick an Internal point to fill');
 		}
 		else if(currentTool == "eraser"){
-		$('#chain_box').hide();
-		$('#fill_box').hide();
-		$('#reverse_box').hide();
-		$('#imgUploadBox').hide();
-		$('#text_inputBox').hide();
-		helpText.text('Pick first corner of the area to be cleared');
+			$('#chain_box').hide();
+			$('#fill_box').hide();
+			$('#reverse_box').hide();
+			$('#imgUploadBox').hide();
+			$('#text_inputBox').hide();
+			helpText.text('Pick first corner of the area to be cleared');
 		}
 		else if(currentTool == "image"){
-		$('#chain_box').hide();
-		$('#fill_box').hide();
-		$('#reverse_box').hide();
-		$('#imgUpload_box').show();
-		$('#text_inputBox').hide();
-		helpText.text('Choose an image file to upload and draw');
+			$('#chain_box').hide();
+			$('#fill_box').hide();
+			$('#reverse_box').hide();
+			$('#imgUpload_box').show();
+			$('#text_inputBox').hide();
+			helpText.text('Choose an image file to upload and draw');
 		}
 		else if(currentTool == "text"){
-		$('#chain_box').hide();
-		$('#fill_box').hide();
-		$('#reverse_box').hide();
-		$('#imgUpload_box').hide();
-		$('#text_inputBox').show();
-		helpText.text('Type the text in the field');
+			$('#chain_box').hide();
+			$('#fill_box').hide();
+			$('#reverse_box').hide();
+			$('#imgUpload_box').hide();
+			$('#text_inputBox').show();
+			helpText.text('Type the text in the field');
+		}
+		else if(currentTool == "ellipse"){
+			$('#chain_box').hide();
+			$('#fill_box').show();
+			$('#reverse_box').hide();
+			$('#imgUpload_box').hide();
+			$('#text_inputBox').hide();
+			helpText.text('Select the starting point of the first axis');
 		}
 	}
 	

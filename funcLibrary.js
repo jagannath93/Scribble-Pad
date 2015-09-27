@@ -5,7 +5,7 @@ function dist( x1, y1, x2, y2){// this is the distance function
 		return distance;
 	}
 
-function lineAngle(x0, y0, x1, y1){// This function calculates the inclination angle of any given line with positive x, placing the origin at (x0,y0)
+function lineAngle(x0, y0, x1, y1){// This function calculates the inclination(radians) angle of any given line with positive x, placing the origin at (x0,y0)
 		var angle;
 		
 		if(x1>x0){
