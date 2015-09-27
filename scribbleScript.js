@@ -311,7 +311,7 @@
 			
 			axisAngle = lineAngle(obj.vert1[0],obj.vert1[1],obj.vert2[0],obj.vert2[1]);//console.log(axisAngle);
 			axisLength = dist(obj.vert1[0],obj.vert1[1],obj.vert2[0],obj.vert2[1]);
-			var minAxis = lineDist([obj.vert1[0],obj.vert1[1]],[obj.vert2[0],obj.vert2[1]],[mouse2X,mouse2Y]);
+			var minAxis = lineDist([obj.vert1[0],obj.vert1[1]],[obj.vert2[0],obj.vert2[1]],[obj.endPt[0],obj.endPt[1]]);
 			scaleFactor = 2*mod(minAxis)/axisLength;
 			
 			rc.translate(obj.vert1[0],obj.vert1[1]);
@@ -606,6 +606,7 @@
 					updatePen();
 					c1.stroke();
 					if(fillCheckbox.checked){c1.fill();}
+                    c1.restore();
 					//adding vertices for snapping
 					var ellipseCenter = [(mouse1X+mouse_ix)/2, (mouse1Y+mouse_iy)/2];
 					var end1 = vSum(ellipseCenter,minAxis);
