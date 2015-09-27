@@ -33,11 +33,18 @@
 		var snappingDistance = 20;
 		
 		var currentTool = "none";
-		//variables for paint bucket tool<>
+		
+		//variables for polygon tool<>
+		var polygonVert = new Array();
+		var sideNum;
+		var AngStep;
+		var startAng;
+		//variables for polygon tool</>
+		//variables for floofill tool<>
 		var pixelStack = new Array();
 		var startR,startG,startB,startA;//,startX,startY;
 		var fillR,fillG,fillB,fillA;
-		//variables for paint bucket tool</>
+		//variables for floofill tool</>
 		
 		//variables for imageUpload tool<>
 		var imageUploaded;
@@ -50,8 +57,9 @@
 		var axisAngle;
 		var axisLength;
 		var scaleFactor = 1;
-		//var testObj;
 		//variables for ellipse tool</>
+		
+		var testObj;
 		
 		var snapVertices = new Array();
 		var gridSize = 100;
@@ -331,6 +339,24 @@
 			addVertex(obj.vert3[0],obj.vert3[1]);
 			addVertex(obj.vert4[0],obj.vert4[1]);
 		}
+		else if(obj.type = 'polygon'){
+			rc.strokeStyle = obj.strokeColor;
+			rc.fillStyle = obj.fillColor;
+			rc.beginPath();
+			rc.moveTo(obj.vertAr[0][0], obj.vertAr[0][1]);
+			for(var x = 1; x < obj.vertAr.length; x++){
+				rc.lineTo(obj.vertAr[x][0], obj.vertAr[x][1]);
+			}
+			rc.lineTo(obj.vertAr[0][0], obj.vertAr[0][1]);
+			rc.closePath();
+			updatePen();
+			rc.stroke();
+			if(fillCheckbox.checked){rc.fill();}
+			
+			for(var x = 0; x < obj.vertAr.length; x++){
+				addVertex(obj.vertAr[x][0], obj.vertAr[x][1]);
+			}
+		}
 	}
 	
 	//click events for all kinds of tools
@@ -469,6 +495,61 @@
 				pingData(recObj);
 			}
 			
+		}
+		else if(currentTool == 'polygon'){
+			if(!penIsDown){
+				mouse1X = e.pageX - this.offsetLeft;
+				mouse1Y = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					mouse1X = curSnap[0];
+					mouse1Y = curSnap[1];
+				}
+				//console.log(mouse1X+", "+mouse1Y);
+				penIsDown = true;
+				helpText.text('Finish drawing the polygon');
+			}else{
+				mouse2X = e.pageX - this.offsetLeft;
+				mouse2Y = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					mouse2X = curSnap[0];
+					mouse2Y = curSnap[1];
+				}
+				
+				polygonVert = [];
+				polygonVert.push([mouse2X,mouse2Y]);
+				startAng = lineAngle(mouse1X,mouse1Y,mouse2X,mouse2Y);
+				var polyRad = dist(mouse1X,mouse1Y,mouse2X,mouse2Y);
+				var angle = startAng;
+				var radVec;
+				for(var v = 1; v < sideNum; v++){
+					angle = startAng+(v*AngStep);
+					radVec = vPrd([Math.cos(angle), Math.sin(angle)],polyRad);
+					polygonVert.push(vSum([mouse1X,mouse1Y],radVec));
+				}
+				
+				c1.beginPath();
+				c1.moveTo(polygonVert[0][0], polygonVert[0][1]);
+				for(var x = 1; x < polygonVert.length; x++){
+					c1.lineTo(polygonVert[x][0], polygonVert[x][1]);
+				}
+				c1.lineTo(polygonVert[0][0], polygonVert[0][1]);
+				c1.closePath();
+				updatePen();
+				c1.stroke();
+				if(fillCheckbox.checked){c1.fill();}
+				
+				for(var x = 0; x < polygonVert.length; x++){
+					addVertex(polygonVert[x][0], polygonVert[x][1]);
+				}
+				
+				var polygonObj = {type: 'polygon', vertAr: polygonVert, strokeColor: c1.strokeStyle, fillColor: c1.fillStyle};
+				penIsDown = false;
+				helpText.text('Pick the center of the polygon');
+				clearTempCanvases();
+				pingData(polygonObj);
+			}
 		}
 		else if(currentTool == "circle"){
 			if(!centerSelected){
@@ -839,6 +920,43 @@
 			}
 			else if(!penIsDown){clearTempCanvases()}
 		}
+		else if(currentTool == 'polygon'){
+			clearTempCanvases();
+			if(penIsDown){
+				mouse2X = e.pageX - this.offsetLeft;
+				mouse2Y = e.pageY - this.offsetTop;
+				//snapping to nearest points if any
+				if(curSnap != 'none'){
+					mouse2X = curSnap[0];
+					mouse2Y = curSnap[1];
+				}
+				c2.beginPath();
+				c2.moveTo(mouse1X,mouse1Y);
+				c2.lineTo(mouse2X,mouse2Y);
+				c2.stroke();
+				polygonVert = [];
+				polygonVert.push([mouse2X,mouse2Y]);
+				startAng = lineAngle(mouse1X,mouse1Y,mouse2X,mouse2Y);
+				var polyRad = dist(mouse1X,mouse1Y,mouse2X,mouse2Y);
+				var angle = startAng;
+				var radVec;
+				for(var v = 1; v < sideNum; v++){
+					angle = startAng+(v*AngStep);
+					radVec = vPrd([Math.cos(angle), Math.sin(angle)],polyRad);
+					polygonVert.push(vSum([mouse1X,mouse1Y],radVec));
+				}
+				
+				c2.beginPath();
+				c2.moveTo(polygonVert[0][0], polygonVert[0][1]);
+				for(var x = 1; x < polygonVert.length; x++){
+					c2.lineTo(polygonVert[x][0], polygonVert[x][1]);
+				}
+				c2.lineTo(polygonVert[0][0], polygonVert[0][1]);
+				c2.closePath();
+				updatePen();
+				c2.stroke();				
+			}
+		}
 		else if(currentTool == "circle"){
 			if(!centerSelected){clearTempCanvases()}
 			else if(centerSelected){
@@ -1084,6 +1202,7 @@
 			$('#reverse_box').hide();
 			$('#text_inputBox').hide();
 			$('#imgUploadBox').hide();
+			$('#polygonToolBox').hide();
 			helpText.text('Pick starting point of the line');
 		}
 		else if(currentTool=="rectangle"){
@@ -1092,6 +1211,7 @@
 			$('#fill_box').show();
 			$('#reverse_box').hide();
 			$('#text_inputBox').hide();
+			$('#polygonToolBox').hide();
 			helpText.text('Pick first corner of the rectangle');
 		}
 		else if(currentTool=="circle"){
@@ -1100,6 +1220,7 @@
 			$('#imgUploadBox').hide();
 			$('#reverse_box').show();
 			$('#text_inputBox').hide();
+			$('#polygonToolBox').hide();
 			helpText.text('Select the centre of the arc/circle');
 		}
 		else if(currentTool == "freehand"){
@@ -1108,6 +1229,7 @@
 			$('#reverse_box').hide();
 			$('#imgUploadBox').hide();
 			$('#text_inputBox').hide();
+			$('#polygonToolBox').hide();
 			helpText.text('Click to start drawing free hand');
 		}
 		else if(currentTool == "curve"){
@@ -1116,6 +1238,7 @@
 			$('#reverse_box').hide();
 			$('#imgUploadBox').hide();
 			$('#text_inputBox').hide();
+			$('#polygonToolBox').hide();
 			helpText.text('Pick the starting point of the curve');
 		}
 		else if(currentTool == "floodFill"){
@@ -1124,6 +1247,7 @@
 			$('#reverse_box').hide();
 			$('#imgUploadBox').hide();
 			$('#text_inputBox').hide();
+			$('#polygonToolBox').hide();
 			helpText.text('Pick an Internal point to fill');
 		}
 		else if(currentTool == "eraser"){
@@ -1132,6 +1256,7 @@
 			$('#reverse_box').hide();
 			$('#imgUploadBox').hide();
 			$('#text_inputBox').hide();
+			$('#polygonToolBox').hide();
 			helpText.text('Pick first corner of the area to be cleared');
 		}
 		else if(currentTool == "image"){
@@ -1140,6 +1265,7 @@
 			$('#reverse_box').hide();
 			$('#imgUpload_box').show();
 			$('#text_inputBox').hide();
+			$('#polygonToolBox').hide();
 			helpText.text('Choose an image file to upload and draw');
 		}
 		else if(currentTool == "text"){
@@ -1148,6 +1274,7 @@
 			$('#reverse_box').hide();
 			$('#imgUpload_box').hide();
 			$('#text_inputBox').show();
+			$('#polygonToolBox').hide();
 			helpText.text('Type the text in the field');
 		}
 		else if(currentTool == "ellipse"){
@@ -1156,7 +1283,18 @@
 			$('#reverse_box').hide();
 			$('#imgUpload_box').hide();
 			$('#text_inputBox').hide();
+			$('#polygonToolBox').hide();
 			helpText.text('Select the starting point of the first axis');
+		}
+		else if(currentTool == "polygon"){
+			$('#chain_box').hide();
+			$('#fill_box').show();
+			$('#reverse_box').hide();
+			$('#imgUpload_box').hide();
+			$('#text_inputBox').hide();
+			$('#polygonToolBox').show();
+			helpText.text('Pick the center of the polygon');
+			updateSides();
 		}
 	}
 	
@@ -1188,6 +1326,19 @@
 		if($('#lineWidth').val() <1){$('#lineWidth').val(1);}
 		c1.lineWidth = $('#lineWidth').val();
 		c2.lineWidth = $('#lineWidth').val();
+	}
+	
+	function updateSides(){
+		var num = $('#numOfSides').val();
+		sideNum = num;
+		if(num < 3){
+			$('#numOfSides').val(3);
+			sideNum = 3;
+		}else if(num > 30){
+			$('#numOfSides').val(30);
+			sideNum = 30;
+		}
+		AngStep = 2*Math.PI/sideNum;
 	}
 	
 	function saveImage(){
