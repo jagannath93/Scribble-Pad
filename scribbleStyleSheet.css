@@ -5,7 +5,7 @@ body{
 		}
 		
 		#canvas_1 {
-			border : solid red 1px;	
+			border : solid black 1px;	
 			cursor : crosshair;
 			-moz-user-select: none; 
 			-khtml-user-select: none; 
@@ -18,7 +18,7 @@ body{
 		}
 		
 		#canvas_2, #canvas_3 {
-			border : solid red 1px;	
+			border : solid black 1px;	
 			cursor : crosshair;
 			-moz-user-select: none; 
 			-khtml-user-select: none; 
@@ -32,7 +32,7 @@ body{
 		}
 		
 		#canvas_grid {
-			border : solid red 1px;	
+			border : solid black 1px;	
 			cursor : crosshair;
 			-moz-user-select: none; 
 			-khtml-user-select: none; 
@@ -46,7 +46,7 @@ body{
 		}
 		
 		#recCanvas {
-			border : solid red 1px;	
+			border : solid black 1px;	
 			cursor : crosshair;
 			-moz-user-select: none; 
 			-khtml-user-select: none; 
@@ -66,7 +66,7 @@ body{
 			left : 10px;
 			width : 1000px;
 			height : 500px;
-			border : solid red 1px;
+			border : solid black 1px;
 			z-index : 1000;
 		}
 		
