@@ -95,6 +95,7 @@ body{
 			position : static;
 			text-align : right;
 			margin: 10px 0px 10px 10px;
+			max-width : 280px;
 		}
 		
 		#help_text{
@@ -111,5 +112,11 @@ body{
 			margin : 0px; 
 		}
 		input[type=number]{
-			max-width : 50px;
+			max-width : 40px;
+		}
+		input[type=color],input[type=checkbox]{
+			max-width : 60px;
+		}
+		input[type=range]{
+			max-width : 90px;
 		}

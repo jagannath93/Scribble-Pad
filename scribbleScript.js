@@ -62,7 +62,7 @@
 		var testObj;
 		
 		var snapVertices = new Array();
-		var gridSize = 100;
+		var gridSize = Number($('#gridSize').val());
 		var gridPoints = new Array();//gridPoints to snap to
 		
 		var lines = new Array();
@@ -196,7 +196,12 @@
 	}
 	
 	function toggleGrid(){//toggles the grid on and off
+		//console.log($('#gridSize').val());
+		gridSize = Number($('#gridSize').val());//updated the gridSize
+		gc.clearRect(0,0,gridCanvas.width,gridCanvas.height);
+		gridPoints = [];
 		if(gridCheckBox.checked){
+			$('#gridSizeTool').show();
 			//drawing vertical lines
 			for(var x=gridSize; x<gridCanvas.width; x+=gridSize){
 				gc.beginPath();
@@ -221,6 +226,7 @@
 		}else{
 			gc.clearRect(0,0,gridCanvas.width, gridCanvas.height);
 			gridPoints = [];
+			$('#gridSizeTool').hide();
 		}
 	}
 	
@@ -1201,13 +1207,13 @@
 			$('#fill_box').hide();
 			$('#reverse_box').hide();
 			$('#text_inputBox').hide();
-			$('#imgUploadBox').hide();
+			$('#imgUpload_box').hide();
 			$('#polygonToolBox').hide();
 			helpText.text('Pick starting point of the line');
 		}
 		else if(currentTool=="rectangle"){
 			$('#chain_box').hide();
-			$('#imgUploadBox').hide();
+			$('#imgUpload_box').hide();
 			$('#fill_box').show();
 			$('#reverse_box').hide();
 			$('#text_inputBox').hide();
@@ -1217,7 +1223,7 @@
 		else if(currentTool=="circle"){
 			$('#chain_box').hide();
 			$('#fill_box').hide();
-			$('#imgUploadBox').hide();
+			$('#imgUpload_box').hide();
 			$('#reverse_box').show();
 			$('#text_inputBox').hide();
 			$('#polygonToolBox').hide();
@@ -1227,7 +1233,7 @@
 			$('#chain_box').hide();
 			$('#fill_box').hide();
 			$('#reverse_box').hide();
-			$('#imgUploadBox').hide();
+			$('#imgUpload_box').hide();
 			$('#text_inputBox').hide();
 			$('#polygonToolBox').hide();
 			helpText.text('Click to start drawing free hand');
@@ -1236,7 +1242,7 @@
 			$('#chain_box').hide();
 			$('#fill_box').hide();
 			$('#reverse_box').hide();
-			$('#imgUploadBox').hide();
+			$('#imgUpload_box').hide();
 			$('#text_inputBox').hide();
 			$('#polygonToolBox').hide();
 			helpText.text('Pick the starting point of the curve');
@@ -1245,7 +1251,7 @@
 			$('#chain_box').hide();
 			$('#fill_box').hide();
 			$('#reverse_box').hide();
-			$('#imgUploadBox').hide();
+			$('#imgUpload_box').hide();
 			$('#text_inputBox').hide();
 			$('#polygonToolBox').hide();
 			helpText.text('Pick an Internal point to fill');
@@ -1254,7 +1260,7 @@
 			$('#chain_box').hide();
 			$('#fill_box').hide();
 			$('#reverse_box').hide();
-			$('#imgUploadBox').hide();
+			$('#imgUpload_box').hide();
 			$('#text_inputBox').hide();
 			$('#polygonToolBox').hide();
 			helpText.text('Pick first corner of the area to be cleared');
