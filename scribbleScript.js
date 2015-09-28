@@ -248,11 +248,11 @@
 			rc.lineWidth = obj.strokeWidth;
 			rc.strokeStyle = obj.strokeColor;
 			rc.beginPath();
-			rc.strokeRect(obj.vert1[0],obj.vert1[1],obj.vert2[0]-obj.vert1[0],obj.vert2[1]-obj.vert1[1]);
 			if(obj.tobeFilled){
 				rc.fillStyle = obj.fillColor;
 				rc.fillRect(obj.vert1[0],obj.vert1[1],obj.vert2[0]-obj.vert1[0],obj.vert2[1]-obj.vert1[1]);
 			}
+			rc.strokeRect(obj.vert1[0],obj.vert1[1],obj.vert2[0]-obj.vert1[0],obj.vert2[1]-obj.vert1[1]);
 			//adding the snapping points
 			addVertex(obj.vert1[0],obj.vert1[1]);
 			addVertex(obj.vert2[0],obj.vert2[1]);
@@ -334,8 +334,8 @@
 			rc.beginPath();
 			rc.arc(axisLength/2,0,axisLength/2,0,2*Math.PI);
 			rc.restore();
-			rc.stroke();
 			if(obj.tobeFilled){rc.fill();}
+			rc.stroke();
 			//adding vertices for snapping
 			var ellipseCenter = [(obj.vert1[0]+obj.vert2[0])/2, (obj.vert1[1]+obj.vert2[1])/2];
 			var end1 = vSum(ellipseCenter,minAxis);
