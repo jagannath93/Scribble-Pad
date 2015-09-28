@@ -105,3 +105,11 @@ body{
 			border : solid #b8b8b8 1px;
 			padding : 5px;
 		}
+		#clear_btn, #save_btn {
+			max-width : 90px;
+			padding: 1px;
+			margin : 0px; 
+		}
+		input[type=number]{
+			max-width : 50px;
+		}
