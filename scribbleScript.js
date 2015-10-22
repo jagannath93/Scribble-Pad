@@ -1,76 +1,76 @@
-	//alert('testing');
-		var canvas1 = document.getElementById("canvas_1");
-		var canvas2 = document.getElementById("canvas_2");
-		var canvas3 = document.getElementById("canvas_3");
-		var gridCanvas = document.getElementById("canvas_grid");
-		var c1 = canvas1.getContext("2d");
-			c1.fillStyle = $('#fillColor').val();
-			c1.strokeStyle =  $('#strokeColor').val();
-			c1.font = "20px Arial";
-			c1.lineJoin = 'round';
-		var c2 = canvas2.getContext("2d");
-			c2.strokeStyle = "#000000";
-			c2.fillStyle = "#b8b8b8"
-			c2.lineJoin = 'round';
-		var c3 = canvas3.getContext("2d");
-			c3.strokeStyle = 'green';
-			c3.lineWidth = 3;
-		var gc = gridCanvas.getContext("2d");
-			gc.strokeStyle = '#000000';
-			gc.lineWidth = 1;
-		
-		var mouse1X, mouse1Y, mouse2X, mouse2Y,mouse_ix,mouse_iy,mouseX,mouseY;
-		var centerX, centerY, radius, startAngle, stopAngle;
-		var curSnap = 'none';//the current snapping point
-		var penIsDown = false;
-		var centerSelected = false;
-		var curveStarted = false;
-		var myCanvas = $('#canvas_screen');
-		var toolList = document.getElementById('tool_list');
-		var helpText = $('#help_text');
-		var imageData;
-		var eraserSize = 30;;
-		var snappingDistance = 20;
-		
-		var currentTool = "none";
-		
-		//variables for polygon tool<>
-		var polygonVert = new Array();
-		var sideNum;
-		var AngStep;
-		var startAng;
-		//variables for polygon tool</>
-		//variables for floofill tool<>
-		var pixelStack = new Array();
-		var startR,startG,startB,startA;//,startX,startY;
-		var fillR,fillG,fillB,fillA;
-		//variables for floofill tool</>
-		
-		//variables for imageUpload tool<>
-		var imageUploaded;
-		var aspectRatio;
-		var imgUpload;
-		var imageIsLoaded = false;
-		//variables for imageUpload tool</>
-		
-		//variables for ellipse tool<>
-		var axisAngle;
-		var axisLength;
-		var scaleFactor = 1;
-		//variables for ellipse tool</>
-		
-		var testObj;
-		
-		var snapVertices = new Array();
-		var gridSize = Number($('#gridSize').val());
-		var gridPoints = new Array();//gridPoints to snap to
-		
-		var lines = new Array();
-		var rectangles = new Array();
-		var circles = new Array();
-		var freeHand = new Array();
-		var curves = new Array();
-		var eraseArray = new Array();
+//alert('testing');
+var canvas1 = document.getElementById("canvas_1");
+var canvas2 = document.getElementById("canvas_2");
+var canvas3 = document.getElementById("canvas_3");
+var gridCanvas = document.getElementById("canvas_grid");
+var c1 = canvas1.getContext("2d");
+	c1.fillStyle = $('#fillColor').val();
+	c1.strokeStyle =  $('#strokeColor').val();
+	c1.font = "20px Arial";
+	c1.lineJoin = 'round';
+var c2 = canvas2.getContext("2d");
+	c2.strokeStyle = "#000000";
+	c2.fillStyle = "#b8b8b8"
+	c2.lineJoin = 'round';
+var c3 = canvas3.getContext("2d");
+	c3.strokeStyle = 'green';
+	c3.lineWidth = 3;
+var gc = gridCanvas.getContext("2d");
+	gc.strokeStyle = '#000000';
+	gc.lineWidth = 1;
+
+var mouse1X, mouse1Y, mouse2X, mouse2Y,mouse_ix,mouse_iy,mouseX,mouseY;
+var centerX, centerY, radius, startAngle, stopAngle;
+var curSnap = 'none';//the current snapping point
+var penIsDown = false;
+var centerSelected = false;
+var curveStarted = false;
+var myCanvas = $('#canvas_screen');
+var toolList = document.getElementById('tool_list');
+var helpText = $('#help_text');
+var imageData;
+var eraserSize = 30;;
+var snappingDistance = 20;
+
+var currentTool = "none";
+
+//variables for polygon tool<>
+var polygonVert = new Array();
+var sideNum;
+var AngStep;
+var startAng;
+//variables for polygon tool</>
+//variables for floofill tool<>
+var pixelStack = new Array();
+var startR,startG,startB,startA;//,startX,startY;
+var fillR,fillG,fillB,fillA;
+//variables for floofill tool</>
+
+//variables for imageUpload tool<>
+var imageUploaded;
+var aspectRatio;
+var imgUpload;
+var imageIsLoaded = false;
+//variables for imageUpload tool</>
+
+//variables for ellipse tool<>
+var axisAngle;
+var axisLength;
+var scaleFactor = 1;
+//variables for ellipse tool</>
+
+var testObj;
+
+var snapVertices = new Array();
+var gridSize = Number($('#gridSize').val());
+var gridPoints = new Array();//gridPoints to snap to
+
+var lines = new Array();
+var rectangles = new Array();
+var circles = new Array();
+var freeHand = new Array();
+var curves = new Array();
+var eraseArray = new Array();
 		
 	function isSnappingTo(pos, markBool){//returns if the position pos is within the snapping distance of another vertex
 		//markBool parameters determines if the sanpping is shown on the screen or not.
