@@ -76,7 +76,7 @@ body{
 			left : 1020px;
 			text-align : right;
 			width : 300px;
-			height : 500px;
+			height : 550px;
 			padding : 0px;
 		}
 		
@@ -101,10 +101,18 @@ body{
 		#help_text{
 			text-align : center;
 			position : absolute;
-			bottom : 0px;
+			bottom : 50px;
 			width : 300px;
 			border : solid #b8b8b8 1px;
 			padding : 5px;
+		}
+		#names{
+			text-align : right;
+			position : absolute;
+			bottom : 0px;
+			width : 300px;
+			padding : 5px;
+			color : #626262;
 		}
 		#clear_btn, #save_btn {
 			max-width : 90px;
